@@ -16,7 +16,7 @@ import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { atomKeys } from '@/utils/atomKeys';
 
-const dataAtom = atomWithStorage(atomKeys.JSONDiffOut, {});
+const dataAtom = atomWithStorage(atomKeys.JSONDiffOut, []);
 const valueAtomA = atomWithStorage(atomKeys.JSONDiffA, '');
 const valueAtomB = atomWithStorage(atomKeys.JSONDiffB, '');
 
