@@ -2,6 +2,8 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupConte
 import { toolList } from "./toolConfig"
 import { ModeToggle } from "@/components/mode-toggle"
 import { NavLink, useLocation } from "react-router"
+import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
 
 export default function ToolBar({ children }: { children: React.ReactNode }) {
 
@@ -33,6 +35,9 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
           <div className="flex flex-row">
             <ModeToggle />
+            <Button variant="outline" size="icon">
+              <a href="https://github.com/Kailash-Sankar/dev-tools" target="_BLANK"><Github /></a>
+            </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
