@@ -63,7 +63,7 @@ const Timezone = () => {
                     <Card style={{ height: '100%' }}>
                         <CardHeader>
                             <CardTitle className='flex flex-row gap-2'>
-                                System Date
+                                Input Date
                             </CardTitle>
                         </CardHeader>
                         {edit ? (
