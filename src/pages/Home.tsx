@@ -9,7 +9,7 @@ const Home = () => {
                 </TypeEffect>
             </div>
             <div>
-                {`<- Tools are listed on the left side bar`}
+                {`It's all in the browser. Nothing persists.`}
             </div>
         </div>
     )
