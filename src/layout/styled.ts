@@ -9,6 +9,7 @@ export const PanelWrapper = styled.div`
     flex-direction: row;
     gap: 10px;
     padding: 10px;
+    flex-wrap: wrap;
 `;
 
 export const Panel = styled.div`
@@ -22,3 +23,23 @@ export const PreWrap = styled.div`
     font-family: monospace;
     white-space: pre-wrap;
 `
+
+// it's not like I have anything better to do
+export const TypeEffect = styled.div`
+   overflow: hidden;
+  border-right: .15em solid orange;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: .15em;
+  animation:  typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  @keyframes blink-caret {
+   from, to { border-color: transparent }
+   50% { border-color: orange; }
+  }
+`;

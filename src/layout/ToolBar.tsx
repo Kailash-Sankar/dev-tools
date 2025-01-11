@@ -1,8 +1,12 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { toolList } from "./toolConfig"
 import { ModeToggle } from "@/components/mode-toggle"
+import { NavLink, useLocation } from "react-router"
 
 export default function ToolBar({ children }: { children: React.ReactNode }) {
+
+  const { pathname } = useLocation();
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -15,10 +19,10 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
               <SidebarMenu>
                 {toolList.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
+                      <NavLink to={item.url}>
                         <span>{item.title}</span>
-                      </a>
+                      </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

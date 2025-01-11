@@ -17,4 +17,24 @@ export const toolList = [
       title: "Base64 Decode",
       url: "/b64-decode",
     },
+    {
+      title: "URI Encode",
+      url: "/uri-encode",
+    },
+    {
+      title: "URI Decode",
+      url: "/uri-decode",
+    },
+    {
+      title: "Text Diff (Lines)",
+      url: "/txt-diff-line",
+    },
+    {
+      title: "Text Diff (Chars)",
+      url: "/txt-diff-char",
+    },
+    {
+      title: "Date (TZ)",
+      url: "/date-tz",
+    },
   ]
