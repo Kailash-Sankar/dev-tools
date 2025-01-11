@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
+import { Panel, PanelWrapper } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
-import { format, formatInTimeZone, toDate } from "date-fns-tz";
+import { format, formatInTimeZone } from "date-fns-tz";
 import { Input } from "@/components/ui/input"
 
 import {
@@ -17,7 +16,6 @@ import {
 import {
     Card,
     CardContent,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -25,7 +23,7 @@ import { Check, Pencil, RefreshCw, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 
-const zoneList = Intl.supportedValuesOf("timeZone");
+const zoneList = (Intl as any).supportedValuesOf("timeZone");
 
 const Timezone = () => {
     const [date, setDate] = useState(new Date());
@@ -44,7 +42,7 @@ const Timezone = () => {
         setEdit(v => !v);
     }
 
-    const handleChange = (e) => {
+    const handleChange = (e:any) => {
         setInputDate(e.target.value);
     }
 
@@ -121,10 +119,10 @@ const Timezone = () => {
     )
 }
 
-const ZoneBlock = React.memo(({ date, defaultZone }) => {
+const ZoneBlock = React.memo(({ date, defaultZone }:any) => {
     const [zone, setZone] = useState(defaultZone);
 
-    const handleChange = (value) => {
+    const handleChange = (value:any) => {
         console.log(value);
         setZone(value);
     }
@@ -141,7 +139,7 @@ const ZoneBlock = React.memo(({ date, defaultZone }) => {
                             <SelectValue placeholder="Select Timezone" />
                         </SelectTrigger>
                         <SelectContent>
-                            {zoneList.map(zone => (
+                            {zoneList.map( (zone:any) => (
                                 <SelectItem value={zone}>{zone}</SelectItem>
                             ))}
                         </SelectContent>

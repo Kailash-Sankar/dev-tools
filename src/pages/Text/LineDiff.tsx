@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -20,16 +20,16 @@ const TextLineDiff = () => {
 
     const [data, setData] = useState([]);
 
-    const handleChangeA = (e) => {
+    const handleChangeA = (e:any) => {
         setValueA(e.target.value);
     }
 
-    const handleChangeB = (e) => {
+    const handleChangeB = (e:any) => {
         setValueB(e.target.value);
     }
 
     const handleClick = () => {
-        const diffData = diffLines(valueA, valueB);
+        const diffData:any = diffLines(valueA, valueB);
         setData(diffData);
     }
 
@@ -58,7 +58,7 @@ const TextLineDiff = () => {
                     <CardContent>
                         {data.length > 0 ? (
                             <PreWrap>
-                                {data.map((part, index) => {
+                                {data.map((part:any, index) => {
                                     const style = {
                                         color: part.added ? "green" : part.removed ? "red" : "white",
                                         textDecoration: part.removed ? "line-through" : "none",

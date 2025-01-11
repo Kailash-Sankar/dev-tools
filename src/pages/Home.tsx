@@ -1,5 +1,4 @@
 import { TypeEffect } from '@/layout/styled';
-import React from 'react';
 
 const Home = () => {
     return (

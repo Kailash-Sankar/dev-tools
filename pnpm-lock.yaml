@@ -73,6 +73,9 @@ devDependencies:
   '@eslint/js':
     specifier: ^9.17.0
     version: 9.18.0
+  '@types/diff':
+    specifier: ^7.0.0
+    version: 7.0.0
   '@types/node':
     specifier: ^22.10.5
     version: 22.10.5
@@ -1568,6 +1571,10 @@ packages:
   /@types/cookie@0.6.0:
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
     dev: false
+
+  /@types/diff@7.0.0:
+    resolution: {integrity: sha512-sVpkpbnTJL9CYoDf4U+tHaQLe5HiTaHWY7m9FuYA7oMCHwC9ie0Vh9eIGapyzYrU3+pILlSY2fAc4elfw5m4dg==}
+    dev: true
 
   /@types/estree@1.0.6:
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ const URIDecode = () => {
     const [value, setValue] = useState('');
     const [data, setData] = useState('');
 
-    const handleChange = (e) => {
+    const handleChange = (e:any) => {
         setValue(e.target.value);
     }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import ReactJson from 'react-json-view';
-
 
 const JSONDiff = () => {
     const [valueA, setValueA] = useState('');
@@ -21,16 +19,16 @@ const JSONDiff = () => {
 
     const [data, setData] = useState([]);
 
-    const handleChangeA = (e) => {
+    const handleChangeA = (e:any) => {
         setValueA(e.target.value);
     }
 
-    const handleChangeB = (e) => {
+    const handleChangeB = (e:any) => {
         setValueB(e.target.value);
     }
 
     const handleClick = () => {
-        const diffData = diffJson(valueA, valueB);
+        const diffData:any = diffJson(valueA, valueB);
         setData(diffData);
     }
 
@@ -59,7 +57,7 @@ const JSONDiff = () => {
                     <CardContent>
                         {data.length > 0 ? (
                            <PreWrap>
-                                {data.map((part, index) => {
+                                {data.map((part:any, index) => {
                                     const color = part.added
                                         ? "green"
                                         : part.removed
