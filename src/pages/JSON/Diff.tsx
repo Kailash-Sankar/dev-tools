@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -13,11 +12,19 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 
-const JSONDiff = () => {
-    const [valueA, setValueA] = useState('');
-    const [valueB, setValueB] = useState('');
+import { useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import { atomKeys } from '@/utils/atomKeys';
 
-    const [data, setData] = useState([]);
+const dataAtom = atomWithStorage(atomKeys.JSONDiffOut, {});
+const valueAtomA = atomWithStorage(atomKeys.JSONDiffA, '');
+const valueAtomB = atomWithStorage(atomKeys.JSONDiffB, '');
+
+const JSONDiff = () => {
+    const [valueA, setValueA] = useAtom(valueAtomA);
+    const [valueB, setValueB] = useAtom(valueAtomB);
+
+    const [data, setData] = useAtom(dataAtom);
 
     const handleChangeA = (e:any) => {
         setValueA(e.target.value);
@@ -40,9 +47,9 @@ const JSONDiff = () => {
                         <CardTitle>Input</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Textarea rows={15} placeholder="Paste JSON A" onChange={handleChangeA} />
+                        <Textarea rows={15} placeholder="Paste JSON A" onChange={handleChangeA} defaultValue={valueA} />
                         <Separator className='m-2' />
-                        <Textarea rows={15} placeholder="Paste JSON B" onChange={handleChangeB} />
+                        <Textarea rows={15} placeholder="Paste JSON B" onChange={handleChangeB} defaultValue={valueB} />
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleClick}>Diff</Button>
@@ -77,8 +84,6 @@ const JSONDiff = () => {
                 </Card>
             </Panel>
         </PanelWrapper>
-
-
     )
 }
 

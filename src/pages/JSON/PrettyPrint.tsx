@@ -1,8 +1,10 @@
-import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
 import ReactJson from 'react-json-view'
+
+import { useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
 import {
     Card,
@@ -11,11 +13,15 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { atomKeys } from '@/utils/atomKeys';
 
+
+const dataAtom = atomWithStorage(atomKeys.JSONPrettyPrintOut, {});
+const valueAtom = atomWithStorage(atomKeys.JSONPrettyPrintIn, '');
 
 const JSONPrettyPrint = () => {
-    const [value, setValue] = useState('');
-    const [data, setData] = useState({});
+    const [data, setData] = useAtom(dataAtom);
+    const [value, setValue] = useAtom(valueAtom);
 
     const handleChange = (e:any) => {
         setValue(e.target.value);
@@ -35,7 +41,12 @@ const JSONPrettyPrint = () => {
                         <CardTitle>Input</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Textarea rows={25} placeholder="Paste JSON here" onChange={handleChange} />
+                        <Textarea 
+                            rows={25} 
+                            placeholder="Paste JSON here" 
+                            onChange={handleChange} 
+                            defaultValue={value} 
+                        />
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleClick}>Format</Button>

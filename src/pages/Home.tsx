@@ -9,7 +9,7 @@ const Home = () => {
                 </TypeEffect>
             </div>
             <div>
-                {`It's all in the browser. Nothing persists.`}
+                {`There are no API calls. Data stays in the browser, persists only on browser localStorage.`}
             </div>
         </div>
     )
