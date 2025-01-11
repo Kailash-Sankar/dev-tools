@@ -1,18 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Panel, PanelWrapper } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label"
-import { format, formatInTimeZone } from "date-fns-tz";
+import { format } from "date-fns-tz";
 import { Input } from "@/components/ui/input"
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
 import {
     Card,
     CardContent,
@@ -21,16 +12,20 @@ import {
 } from "@/components/ui/card"
 import { Check, Pencil, RefreshCw, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ZoneBlock from './ZoneBlock';
+import { atomWithStorage } from 'jotai/utils';
+import { atomKeys } from '@/utils/atomKeys';
 
-
-const zoneList = (Intl as any).supportedValuesOf("timeZone");
+const zoneAtomA = atomWithStorage(atomKeys.dateZoneA, 'UTC');
+const zoneAtomB = atomWithStorage(atomKeys.dateZoneB, 'Asia/Kolkata');
+const zoneAtomC = atomWithStorage(atomKeys.dateZoneC, 'Etc/GMT-8');
+const zoneAtomD = atomWithStorage(atomKeys.dateZoneD, 'PST8PDT');
 
 const Timezone = () => {
     const [date, setDate] = useState(new Date());
     const [inputDate, setInputDate] = useState('');
     const [edit, setEdit] = useState(false);
     const { toast } = useToast()
-
 
     const formattedDate = useMemo(() => format(date, "yyyy-MM-dd HH:mm:ssXXX"), [date]);
 
@@ -42,7 +37,7 @@ const Timezone = () => {
         setEdit(v => !v);
     }
 
-    const handleChange = (e:any) => {
+    const handleChange = (e: any) => {
         setInputDate(e.target.value);
     }
 
@@ -69,12 +64,10 @@ const Timezone = () => {
                         <CardHeader>
                             <CardTitle className='flex flex-row gap-2'>
                                 System Date
-
                             </CardTitle>
                         </CardHeader>
-
                         {edit ? (
-                            <CardContent className='flex flex-row gap-2'>
+                            <CardContent key='edit-view' className='flex flex-row gap-2'>
                                 <Input className='text-base text-teal-400' defaultValue={formattedDate} onChange={handleChange} />
                                 <Button key='check' variant="outline" size="icon" onClick={applyDate}>
                                     <Check size={14} />
@@ -85,7 +78,7 @@ const Timezone = () => {
                                 </Button>
                             </CardContent>
                         ) : (
-                            <CardContent className='flex flex-row gap-2'>
+                            <CardContent key='read-view' className='flex flex-row gap-2'>
                                 <Label className='text-xl' >{formattedDate}</Label>
                                 <Button key='edit' variant="outline" size="icon" onClick={toggleEdit}>
                                     <Pencil size={16} />
@@ -93,7 +86,6 @@ const Timezone = () => {
                                 <Button key='reset' variant="outline" size="icon" onClick={refreshDate}>
                                     <RefreshCw size={18} />
                                 </Button>
-
                             </CardContent>
                         )
                         }
@@ -101,57 +93,21 @@ const Timezone = () => {
                 </Panel>
             </PanelWrapper>
             <PanelWrapper>
-                <Panel>
-                    <ZoneBlock date={date} defaultZone="UTC" />
+                <Panel key='tz-1'>
+                    <ZoneBlock date={date} zoneAtom={zoneAtomA} />
                 </Panel>
-                <Panel>
-                    <ZoneBlock date={date} defaultZone="Asia/Kolkata" />
+                <Panel key='tz-2'>
+                    <ZoneBlock date={date} zoneAtom={zoneAtomB} />
                 </Panel>
-                <Panel>
-                    <ZoneBlock date={date} defaultZone="Etc/GMT-8" />
+                <Panel key='tz-3'>
+                    <ZoneBlock date={date} zoneAtom={zoneAtomC} />
                 </Panel>
-                <Panel>
-                    <ZoneBlock date={date} defaultZone="PST8PDT" />
+                <Panel key='tz-4'>
+                    <ZoneBlock date={date} zoneAtom={zoneAtomD} />
                 </Panel>
             </PanelWrapper>
         </>
-
     )
 }
-
-const ZoneBlock = React.memo(({ date, defaultZone }:any) => {
-    const [zone, setZone] = useState(defaultZone);
-
-    const handleChange = (value:any) => {
-        console.log(value);
-        setZone(value);
-    }
-    const formattedZonedDate = useMemo(() => {
-        return formatInTimeZone(date, zone, "yyyy-MM-dd HH:mm:ssXXX");
-    }, [date, zone]);
-
-    return (
-        <Card style={{ height: '100%' }}>
-            <CardHeader>
-                <CardTitle>
-                    <Select onValueChange={handleChange} value={zone}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select Timezone" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {zoneList.map( (zone:any) => (
-                                <SelectItem value={zone}>{zone}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-
-                <Label className='text-lime-500'>{formattedZonedDate}</Label>
-            </CardContent>
-        </Card>
-    );
-});
 
 export default Timezone;

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -12,13 +11,20 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { atomWithStorage } from 'jotai/utils';
+import { atomKeys } from '@/utils/atomKeys';
+import { useAtom } from 'jotai';
+
+const valueAtomA = atomWithStorage(atomKeys.TextLinesA, '');
+const valueAtomB = atomWithStorage(atomKeys.TextLinesB, '');
+const dataAtom = atomWithStorage(atomKeys.TextLinesOut, []);
 
 
 const TextLineDiff = () => {
-    const [valueA, setValueA] = useState('');
-    const [valueB, setValueB] = useState('');
+    const [valueA, setValueA] = useAtom(valueAtomA);
+    const [valueB, setValueB] = useAtom(valueAtomB);
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useAtom(dataAtom);
 
     const handleChangeA = (e:any) => {
         setValueA(e.target.value);
@@ -29,7 +35,7 @@ const TextLineDiff = () => {
     }
 
     const handleClick = () => {
-        const diffData:any = diffLines(valueA, valueB);
+        const diffData:any = diffLines(valueA, valueB, { ignoreWhitespace: true });
         setData(diffData);
     }
 
@@ -41,9 +47,9 @@ const TextLineDiff = () => {
                         <CardTitle>Input</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Textarea rows={15} placeholder="Paste Text A" onChange={handleChangeA} />
+                        <Textarea rows={15} placeholder="Paste Text A" onChange={handleChangeA} defaultValue={valueA} />
                         <Separator className='m-2' />
-                        <Textarea rows={15} placeholder="Paste Text B" onChange={handleChangeB} />
+                        <Textarea rows={15} placeholder="Paste Text B" onChange={handleChangeB} defaultValue={valueB} />
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleClick}>Diff</Button>
