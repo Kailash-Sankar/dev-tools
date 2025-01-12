@@ -2,11 +2,11 @@
 
 export const toolList = [
     {
-      title: "JSON Pretty Print ",
+      title: "JSON Format",
       url: "/json-pp",
     },
     {
-      title: "JSON diff",
+      title: "JSON Diff",
       url: "/json-diff",
     },
     {
@@ -26,15 +26,19 @@ export const toolList = [
       url: "/uri-decode",
     },
     {
-      title: "Text Diff (Lines)",
+      title: "Text Diff: Lines",
       url: "/txt-diff-line",
     },
     {
-      title: "Text Diff (Chars)",
+      title: "Text Diff: Chars",
       url: "/txt-diff-char",
     },
     {
-      title: "Date (TZ)",
+      title: "Date TZ",
       url: "/date-tz",
+    },
+    {
+      title: "Date Epoch",
+      url: "/date-epoch",
     },
   ]

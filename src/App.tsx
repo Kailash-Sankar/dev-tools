@@ -18,6 +18,7 @@ const URIDecode = lazy(() => import('./pages/URI/Decode'))
 const TextLineDiff = lazy(() => import('./pages/Text/LineDiff')) 
 const TextCharDiff = lazy(() => import('./pages/Text/CharDiff')) 
 const DateTimezone = lazy(() => import('./pages/Date/Timezone'));
+const DateEpoch = lazy(() => import('./pages/Date/Epoch'));
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/txt-diff-line" element={<TextLineDiff />} />
                 <Route path="/txt-diff-char" element={<TextCharDiff />} />
                 <Route path="/date-tz" element={<DateTimezone />} />
+                <Route path="/date-epoch" element={<DateEpoch />} />
               </Routes>
             </Suspense>
           </ContentWrapper>
