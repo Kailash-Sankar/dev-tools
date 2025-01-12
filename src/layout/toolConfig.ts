@@ -41,4 +41,8 @@ export const toolList = [
       title: "Date Epoch",
       url: "/date-epoch",
     },
+    {
+      title: "Color Picker",
+      url: "/color-picker",
+    },
   ]

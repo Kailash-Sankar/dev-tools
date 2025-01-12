@@ -16,9 +16,9 @@ import { atomWithStorage } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
 
-const valueAtomA = atomWithStorage(atomKeys.TextCharA, '');
-const valueAtomB = atomWithStorage(atomKeys.TextCharB, '');
-const dataAtom = atomWithStorage(atomKeys.TextCharOut, []);
+const valueAtomA = atomWithStorage(atomKeys.textCharA, '');
+const valueAtomB = atomWithStorage(atomKeys.textCharB, '');
+const dataAtom = atomWithStorage(atomKeys.textCharOut, []);
 
 const TextCharDiff = () => {
     const [valueA, setValueA] = useAtom(valueAtomA);

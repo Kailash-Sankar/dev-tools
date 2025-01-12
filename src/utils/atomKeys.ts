@@ -8,16 +8,18 @@ export const atomKeys = {
     JSONDiffB: 'json-diff-b',
     JSONDiffOut: 'json-diff-out',
 
-    TextCharA: 'txt-diff-chart-a',
-    TextCharB: 'txt-diff-chart-b',
-    TextCharOut: 'txt-diff-chart-out',
+    textCharA: 'txt-diff-chart-a',
+    textCharB: 'txt-diff-chart-b',
+    textCharOut: 'txt-diff-chart-out',
 
-    TextLinesA: 'txt-diff-lines-a',
-    TextLinesB: 'txt-diff-lines-b',
-    TextLinesOut: 'txt-diff-lines-out',
+    textLinesA: 'txt-diff-lines-a',
+    textLinesB: 'txt-diff-lines-b',
+    textLinesOut: 'txt-diff-lines-out',
 
     dateZoneA: 'date-tz-a',
     dateZoneB: 'date-tz-b',
     dateZoneC: 'date-tz-c',
     dateZoneD: 'date-tz-d',
+
+    colorPicker: 'color-picker',
 }

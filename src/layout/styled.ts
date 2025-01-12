@@ -28,7 +28,6 @@ export const PreWrap = styled.div`
     white-space: pre-wrap;
 `
 
-// it's not like I have anything better to do
 export const TypeEffect = styled.div`
    overflow: hidden;
   border-right: .15em solid orange;

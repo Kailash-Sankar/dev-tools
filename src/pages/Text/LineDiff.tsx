@@ -15,9 +15,9 @@ import { atomWithStorage } from 'jotai/utils';
 import { atomKeys } from '@/utils/atomKeys';
 import { useAtom } from 'jotai';
 
-const valueAtomA = atomWithStorage(atomKeys.TextLinesA, '');
-const valueAtomB = atomWithStorage(atomKeys.TextLinesB, '');
-const dataAtom = atomWithStorage(atomKeys.TextLinesOut, []);
+const valueAtomA = atomWithStorage(atomKeys.textLinesA, '');
+const valueAtomB = atomWithStorage(atomKeys.textLinesB, '');
+const dataAtom = atomWithStorage(atomKeys.textLinesOut, []);
 
 
 const TextLineDiff = () => {
