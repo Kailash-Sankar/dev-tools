@@ -35,7 +35,7 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex flex-row">
+          <div className="flex flex-row gap-2">
             <ModeToggle />
             <Button variant="outline" size="icon">
               <a href="https://github.com/Kailash-Sankar/dev-tools" target="_BLANK"><Github /></a>

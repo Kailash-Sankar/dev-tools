@@ -17,7 +17,11 @@ const Home = () => {
                 </TypeEffect>
             </div>
 
-            <div>
+            <div style={{ 
+                backgroundColor: `hsl(var(--border))`,
+                display: 'inline-block',
+                padding: 2
+             }}>
                 {`There are no API calls. Data stays in the browser, persists only on browser localStorage.`}
             </div>
         </div>
