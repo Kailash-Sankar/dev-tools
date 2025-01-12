@@ -4,6 +4,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { NavLink, useLocation } from "react-router"
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function ToolBar({ children }: { children: React.ReactNode }) {
 
@@ -14,9 +15,10 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>
+            <SidebarGroupLabel className="text-base">
               Dev Tools
             </SidebarGroupLabel>
+            <Separator className="mb-2" />
             <SidebarGroupContent>
               <SidebarMenu>
                 {toolList.map((item) => (
