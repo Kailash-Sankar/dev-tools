@@ -16,7 +16,7 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel className="text-base">
-              Dev Tools
+              <NavLink className='text-slate-200' to='/'>Dev Tools</NavLink>
             </SidebarGroupLabel>
             <Separator className="mb-2" />
             <SidebarGroupContent>
