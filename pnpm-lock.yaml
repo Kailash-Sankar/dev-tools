@@ -53,6 +53,9 @@ dependencies:
   lucide-react:
     specifier: ^0.471.0
     version: 0.471.0(react@18.3.1)
+  pica:
+    specifier: ^9.0.1
+    version: 9.0.1
   react:
     specifier: ^18.3.1
     version: 18.3.1
@@ -88,6 +91,9 @@ devDependencies:
   '@types/node':
     specifier: ^22.10.5
     version: 22.10.5
+  '@types/pica':
+    specifier: ^9.0.5
+    version: 9.0.5
   '@types/react':
     specifier: ^18.3.18
     version: 18.3.18
@@ -1610,6 +1616,10 @@ packages:
       undici-types: 6.20.0
     dev: true
 
+  /@types/pica@9.0.5:
+    resolution: {integrity: sha512-OSd4905yxFNtRanHuyyQAfC9AkxiYcbhlzP606Gl6rFcYRgq4vdLCZuYKokLQBihgrkNzyPkoeykvJDWcPjaCw==}
+    dev: true
+
   /@types/prop-types@15.7.14:
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
 
@@ -2399,6 +2409,10 @@ packages:
     engines: {node: '>=18'}
     dev: true
 
+  /glur@1.1.2:
+    resolution: {integrity: sha512-l+8esYHTKOx2G/Aao4lEQ0bnHWg4fWtJbVoZZT9Knxi01pB8C80BR85nONLFwkkQoFRCmXY+BUcGZN3yZ2QsRA==}
+    dev: false
+
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
@@ -2633,6 +2647,13 @@ packages:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
     dev: true
 
+  /multimath@2.0.0:
+    resolution: {integrity: sha512-toRx66cAMJ+Ccz7pMIg38xSIrtnbozk0dchXezwQDMgQmbGpfxjtv68H+L00iFL8hxDaVjrmwAFSb3I6bg8Q2g==}
+    dependencies:
+      glur: 1.1.2
+      object-assign: 4.1.1
+    dev: false
+
   /mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
     dependencies:
@@ -2736,6 +2757,15 @@ packages:
     dependencies:
       lru-cache: 10.4.3
       minipass: 7.1.2
+
+  /pica@9.0.1:
+    resolution: {integrity: sha512-v0U4vY6Z3ztz9b4jBIhCD3WYoecGXCQeCsYep+sXRefViL+mVVoTL+wqzdPeE+GpBFsRUtQZb6dltvAt2UkMtQ==}
+    dependencies:
+      glur: 1.1.2
+      multimath: 2.0.0
+      object-assign: 4.1.1
+      webworkify: 1.5.0
+    dev: false
 
   /picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -3479,6 +3509,10 @@ packages:
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+    dev: false
+
+  /webworkify@1.5.0:
+    resolution: {integrity: sha512-AMcUeyXAhbACL8S2hqqdqOLqvJ8ylmIbNwUIqQujRSouf4+eUFaXbG6F1Rbu+srlJMmxQWsiU7mOJi0nMBfM1g==}
     dev: false
 
   /whatwg-url@5.0.0:
