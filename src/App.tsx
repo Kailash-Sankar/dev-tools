@@ -19,6 +19,7 @@ const TextCharDiff = lazy(() => import('./pages/Text/CharDiff'))
 const DateTimezone = lazy(() => import('./pages/Date/Timezone'));
 const DateEpoch = lazy(() => import('./pages/Date/Epoch'));
 const ColorPicker = lazy(() => import('./pages/Colors/Picker'));
+const ImageCompressor = lazy(() => import('./pages/Image/Compressor'));
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/date-tz" element={<DateTimezone />} />
                 <Route path="/date-epoch" element={<DateEpoch />} />
                 <Route path="/color-picker" element={<ColorPicker />} />
+                <Route path="/img-compressor" element={<ImageCompressor />} />
               </Routes>
             </Suspense>
           </ContentWrapper>

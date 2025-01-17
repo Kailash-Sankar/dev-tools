@@ -45,4 +45,8 @@ export const toolList = [
       title: "Color Picker",
       url: "/color-picker",
     },
+    {
+      title: "Image Compressor",
+      url: "/img-compressor",
+    },
   ]
