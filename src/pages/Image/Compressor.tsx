@@ -29,9 +29,15 @@ const ImageCompression = () => {
     const [originalSize, setOriginalSize] = useState<number>(0);
     const [compressedSize, setCompressedSize] = useState<number>(0);
 
+    const resetCompressedImage = () => {
+        setCompressedImage(null);
+        setCompressedSize(0);
+    };
+
     const handleImageUpload = (e: any) => {
         const file = e.target.files[0];
         if (file) {
+            resetCompressedImage();
             setOriginalFileName(file.name.split(".")[0]);
             setOriginalSize(file.size);
             const reader = new FileReader();
@@ -46,6 +52,18 @@ const ImageCompression = () => {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handlePropertyChange = (setter: React.Dispatch<React.SetStateAction<number>>) => {
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
+            resetCompressedImage();
+            setter(Number(e.target.value));
+        };
+    };
+
+    const handleFormatChange = (value: string) => {
+        resetCompressedImage();
+        setFormat(value);
     };
 
     const handleCompress = async () => {
@@ -90,7 +108,9 @@ const ImageCompression = () => {
     };
 
     const sizeSaving = originalSize - compressedSize;
-    const savingPercentage = ((sizeSaving / originalSize) * 100).toFixed(2);
+    const savingPercentage = originalSize
+        ? ((sizeSaving / originalSize) * 100).toFixed(2)
+        : "0.00";
     const isSavingPositive = sizeSaving > 0;
 
     return (
@@ -106,7 +126,7 @@ const ImageCompression = () => {
                         type="number"
                         placeholder="Width"
                         value={width}
-                        onChange={(e) => setWidth(Number(e.target.value))}
+                        onChange={handlePropertyChange(setWidth)}
                     />
                 </div>
                 <div>
@@ -115,12 +135,12 @@ const ImageCompression = () => {
                         type="number"
                         placeholder="Height"
                         value={height}
-                        onChange={(e) => setHeight(Number(e.target.value))}
+                        onChange={handlePropertyChange(setHeight)}
                     />
                 </div>
                 <div>
                     <label>Format</label>
-                    <Select onValueChange={setFormat} value={format}>
+                    <Select onValueChange={(value) => handleFormatChange(value)} value={format}>
                         <SelectTrigger>
                             <SelectValue placeholder="Format" />
                         </SelectTrigger>
@@ -140,7 +160,10 @@ const ImageCompression = () => {
                         max="1.0"
                         placeholder="Quality"
                         value={quality}
-                        onChange={(e) => setQuality(Number(e.target.value))}
+                        onChange={(e) => {
+                            resetCompressedImage();
+                            setQuality(Number(e.target.value));
+                        }}
                     />
                 </div>
                 <Button onClick={handleCompress}>Compress</Button>
@@ -151,6 +174,9 @@ const ImageCompression = () => {
                     <h3>Original Image</h3>
                     {originalImage && <ImagePreview src={originalImage} alt="Original" />}
                     <p>Original Size: {(originalSize / 1024).toFixed(2)} KB</p>
+                    <p>Dimension:
+                        {width} x {height}
+                    </p>
                 </Panel>
 
                 <Panel>
@@ -159,6 +185,9 @@ const ImageCompression = () => {
                         <>
                             <ImagePreview src={compressedImage} alt="Compressed" />
                             <p>Compressed Size: {(compressedSize / 1024).toFixed(2)} KB</p>
+                            <p>
+                                Dimension: {width} x {height}
+                            </p>
                             <SizeInfo isSavingPositive={isSavingPositive}>
                                 Size Saving: {savingPercentage}%
                             </SizeInfo>
