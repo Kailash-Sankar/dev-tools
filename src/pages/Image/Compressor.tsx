@@ -40,7 +40,8 @@ const ImageCompression = () => {
         const file = e.target.files[0];
         if (file) {
             resetCompressedImage();
-            setOriginalFileName(file.name.split(".")[0]);
+            const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
+            setOriginalFileName(fileNameWithoutExtension);
             setOriginalSize(file.size);
             const reader = new FileReader();
             reader.onload = (event: any) => {
