@@ -28,6 +28,8 @@ const ImageCompression = () => {
     const [format, setFormat] = useState<string>("image/jpeg");
     const [originalSize, setOriginalSize] = useState<number>(0);
     const [compressedSize, setCompressedSize] = useState<number>(0);
+    const [originalImageWidth, setOriginalImageWidth] = useState<number>(0);
+    const [originalImageHeight, setOriginalImageHeight] = useState<number>(0);
 
     const resetCompressedImage = () => {
         setCompressedImage(null);
@@ -48,6 +50,8 @@ const ImageCompression = () => {
                 img.onload = () => {
                     setWidth(img.width);
                     setHeight(img.height);
+                    setOriginalImageWidth(img.width);
+                    setOriginalImageHeight(img.height);
                 };
             };
             reader.readAsDataURL(file);
@@ -174,8 +178,8 @@ const ImageCompression = () => {
                     <h3>Original Image</h3>
                     {originalImage && <ImagePreview src={originalImage} alt="Original" />}
                     <p>Original Size: {(originalSize / 1024).toFixed(2)} KB</p>
-                    <p>Dimension:
-                        {width} x {height}
+                    <p>
+                        Original Dimension: {originalImageWidth} x {originalImageHeight}
                     </p>
                 </Panel>
 
@@ -186,7 +190,7 @@ const ImageCompression = () => {
                             <ImagePreview src={compressedImage} alt="Compressed" />
                             <p>Compressed Size: {(compressedSize / 1024).toFixed(2)} KB</p>
                             <p>
-                                Dimension: {width} x {height}
+                                Compressed Dimension: {width} x {height}
                             </p>
                             <SizeInfo isSavingPositive={isSavingPositive}>
                                 Size Saving: {savingPercentage}%
