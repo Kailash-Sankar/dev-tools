@@ -15,21 +15,25 @@ import {
     Panels,
     Panel,
     ImagePreview,
+    SizeInfo,
 } from "./styled";
 
 const ImageCompression = () => {
-    const [originalImage, setOriginalImage] = useState(null);
-    const [originalFileName, setOriginalFileName] = useState("compressed-image");
-    const [compressedImage, setCompressedImage] = useState(null);
-    const [width, setWidth] = useState(0);
-    const [height, setHeight] = useState(0);
-    const [quality, setQuality] = useState(0.8);
-    const [format, setFormat] = useState("image/jpeg");
+    const [originalImage, setOriginalImage] = useState<string | null>(null);
+    const [originalFileName, setOriginalFileName] = useState<string>("compressed-image");
+    const [compressedImage, setCompressedImage] = useState<string | null>(null);
+    const [width, setWidth] = useState<number>(0);
+    const [height, setHeight] = useState<number>(0);
+    const [quality, setQuality] = useState<number>(0.8);
+    const [format, setFormat] = useState<string>("image/jpeg");
+    const [originalSize, setOriginalSize] = useState<number>(0);
+    const [compressedSize, setCompressedSize] = useState<number>(0);
 
     const handleImageUpload = (e: any) => {
         const file = e.target.files[0];
         if (file) {
             setOriginalFileName(file.name.split(".")[0]);
+            setOriginalSize(file.size);
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 setOriginalImage(event.target.result);
@@ -72,6 +76,7 @@ const ImageCompression = () => {
 
             const compressedImageUrl: any = URL.createObjectURL(blob);
             setCompressedImage(compressedImageUrl);
+            setCompressedSize(blob.size);
         };
     };
 
@@ -83,6 +88,10 @@ const ImageCompression = () => {
             link.click();
         }
     };
+
+    const sizeSaving = originalSize - compressedSize;
+    const savingPercentage = ((sizeSaving / originalSize) * 100).toFixed(2);
+    const isSavingPositive = sizeSaving > 0;
 
     return (
         <Container>
@@ -141,6 +150,7 @@ const ImageCompression = () => {
                 <Panel>
                     <h3>Original Image</h3>
                     {originalImage && <ImagePreview src={originalImage} alt="Original" />}
+                    <p>Original Size: {(originalSize / 1024).toFixed(2)} KB</p>
                 </Panel>
 
                 <Panel>
@@ -148,6 +158,10 @@ const ImageCompression = () => {
                     {compressedImage && (
                         <>
                             <ImagePreview src={compressedImage} alt="Compressed" />
+                            <p>Compressed Size: {(compressedSize / 1024).toFixed(2)} KB</p>
+                            <SizeInfo isSavingPositive={isSavingPositive}>
+                                Size Saving: {savingPercentage}%
+                            </SizeInfo>
                             <Input
                                 type="text"
                                 placeholder="File name"

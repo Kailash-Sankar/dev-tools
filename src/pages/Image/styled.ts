@@ -1,5 +1,9 @@
 import styled from 'styled-components';
 
+type SizeInfoProps = {
+    isSavingPositive: boolean;
+};
+
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -36,4 +40,8 @@ export const ImagePreview = styled.img`
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
+`;
+
+export const SizeInfo = styled.div<SizeInfoProps>`
+  color: ${(props) => (props.isSavingPositive ? "green" : "red")};
 `;
