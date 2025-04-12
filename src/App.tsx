@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import ToolBar from './layout/ToolBar'
 import { ContentWrapper } from './layout/styled'
 import { SkeletonCard } from './components/CardLoader';
+import DagViz from './pages/DagViz';
 const JSONDiff = lazy(() => import('./pages/JSON/Diff')) 
 const JSONPrettyPrint = lazy(() => import('./pages/JSON/PrettyPrint')) 
 const Base64Encode = lazy(() => import('./pages/base64/Encode')) 
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/date-epoch" element={<DateEpoch />} />
                 <Route path="/color-picker" element={<ColorPicker />} />
                 <Route path="/img-compressor" element={<ImageCompressor />} />
+                <Route path="/dag-viz" element={<DagViz/>} />
               </Routes>
             </Suspense>
           </ContentWrapper>

@@ -49,4 +49,8 @@ export const toolList = [
       title: "Image Compressor",
       url: "/img-compressor",
     },
+    {
+      title: "Dag Viz",
+      url: "/dag-viz",
+    },
   ]

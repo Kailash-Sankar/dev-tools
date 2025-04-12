@@ -1,0 +1,67 @@
+mapperFilters:
+  arguments:
+      - name: rawEvents
+        dynamic: Event
+        valueType: [
+            event_name?: String,
+            unstruct_event?: [
+                raw_event?: [
+                    name: String
+                ]
+            ]
+        ]
+  outputs:
+  - $__mapped_event_0
+  dag:
+      __mapped_event_0:
+          condition: $__mapping_filters_0
+          events: $rawEvents
+          op: filterEvents
+      __mapped_event_1:
+          condition: $__mapping_filters_1
+          events: $rawEvents
+          op: filterEvents
+      __mapped_event_2:
+          condition: $__mapping_filters_2
+          events: $rawEvents
+          op: filterEvents
+      __mapping_filters_0:
+          left: $eventNameBeforeMapping
+          op: equals
+          right: conviva_video_events
+      __mapping_filters_1:
+          left: $eventNameBeforeMapping
+          op: equals
+          right: conviva_periodic_heartbeat
+      __mapping_filters_2:
+          left: $eventNameBeforeMapping
+          op: equals
+          right: conviva_network_request
+      eventNameFromSensor:
+          in: $rawEvents
+          op: get
+          orElse: ''
+          path: event_name
+      eventNameBeforeMapping:
+        condition:
+          left: $eventNameFromSensor
+          op: equals
+          right:
+            op: constant
+            value: raw_event
+        else:
+          condition:
+            left: $eventNameFromSensor
+            op: equals
+            right:
+              op: constant
+              value: conviva_video_events
+          else: $eventNameFromSensor
+          op: if
+          then: conviva_video_events
+        op: if
+        then:
+          in: $rawEvents
+          op: get
+          orElse: ''
+          path: unstruct_event.raw_event.name

@@ -27,3 +27,14 @@ export const PreWrap = styled.div`
     font-family: monospace;
     white-space: pre-wrap;
 `
+
+export const SectionTitle = styled.div`
+    margin-bottom: 5px;
+    font-size: 14px;
+`;
+
+export const FlexRow =  styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+`;
