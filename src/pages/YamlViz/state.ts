@@ -4,8 +4,10 @@ export const useGraphStore = create((set) => ({
     hoveredNode: null,
     highlightedPath: new Set(),
     searchQuery: '',
-    selectedNode: null,
-    highlightOnHover: true,
+    selectedNodes: new Set(),
+    focusedNode: null,
+    highlightOnHover: false,
+    nodeMap: {},
 }));
 
 
@@ -24,12 +26,22 @@ export const setSearchQuery = (query: any) => useGraphStore.setState((state) => 
     searchQuery: query,
 }));
 
-export const setSelectedNode = (node: any) => useGraphStore.setState((state) => ({
+export const setSelectedNodes = (nodes: any) => useGraphStore.setState((state) => ({
     ...state,
-    selectedNode: node,
+    selectedNodes: nodes,
 }));
 
 export const setHighlightOnHover = (value: any) => useGraphStore.setState((state) => ({
     ...state,
     highlightOnHover: value,
+}));
+
+export const setNodeMap = (nodeMap: any) => useGraphStore.setState((state) => ({
+    ...state,
+    nodeMap,
+}));
+
+export const setFocusedNode = (focusedNode: any) => useGraphStore.setState((state) => ({
+    ...state,
+    focusedNode,
 }));

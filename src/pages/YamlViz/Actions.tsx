@@ -1,24 +1,28 @@
 import { Input } from "@/components/ui/input"
 import { setHighlightOnHover, setSearchQuery, useGraphStore } from "./state";
-import { FlexRow, SectionTitle } from "@/layout/styled";
+import { FlexCol, FlexRow, SectionTitle } from "@/layout/styled";
 import { Button } from "@/components/ui/button";
-
+import NodeSearch from "./NodeSearch";
 
 const Actions = ({ handleSearch, resetCamera }) => {
     const { searchQuery, highlightOnHover } = useGraphStore();
-
     return (
-        <div>
+        <FlexCol>
             <SectionTitle>Actions</SectionTitle>
             <FlexRow>
                 <Input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search node by label"
+                    placeholder="Find node by label (exact)"
                     style={{ marginBottom: '10px', padding: '4px', width: '200px' }}
                 ></Input>
-                <Button onClick={handleSearch}>Search</Button>
+                <Button onClick={handleSearch}>Find</Button>
+                <div>|or|</div>
+                <NodeSearch />
+            </FlexRow>
+            <FlexRow>
+                
             </FlexRow>
             <FlexRow>
                 <Button onClick={resetCamera}>Reset View</Button>
@@ -27,7 +31,7 @@ const Actions = ({ handleSearch, resetCamera }) => {
                     variant={ highlightOnHover ? "default" : "secondary"}
                 >Hover Highlight</Button>
             </FlexRow>
-        </div>
+        </FlexCol>
     );
 }
 

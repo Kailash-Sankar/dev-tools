@@ -1,15 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Panel, PanelWrapper } from '@/layout/styled';
+import { FlexCol, FlexRow, Panel, PanelWrapper } from '@/layout/styled';
 import useGraph from './useGraph';
 import Info from './Info';
 import Actions from './Actions';
+import FileUpload from './FileUpload';
+import { parseYaml } from './utils';
 
 const DagViz = () => {
-    const { containerRef, handleRender, handleSearch, resetCamera } = useGraph();
+    const { containerRef, handleRender, handleSearch, resetCamera, focusCameraOnNode, getNodeInfo } = useGraph();
 
     const handleClick = () => {
-        handleRender();
+        const parsedYaml = parseYaml();
+        handleRender({ parsedYaml });
     }
 
     return (
@@ -18,10 +21,11 @@ const DagViz = () => {
                 <Panel>
                     <Card style={{ height: '100%' }}>
                         <CardHeader>
-                            <div>
-                            <div>TBD input file</div>
-                            <Button onClick={handleClick}>Render</Button>
-                            </div>
+                            <FlexRow>
+                            <FileUpload onParsed={handleRender} />
+                            <div>|or|</div>
+                            <div><Button onClick={handleClick}>Render Mock</Button></div>
+                            </FlexRow>
                         </CardHeader>
                         <CardContent>
                             <Actions handleSearch={handleSearch} resetCamera={resetCamera} />
@@ -31,7 +35,7 @@ const DagViz = () => {
                     </Card>
                 </Panel>
                 <Panel>
-                    <Info />
+                    <Info getNodeInfo={getNodeInfo} />
                 </Panel>
             </PanelWrapper>
             <PanelWrapper>

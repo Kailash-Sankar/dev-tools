@@ -6,6 +6,7 @@ export const ContentWrapper = styled.div`
     background-color: #101c984d;
     background-position: 0 0, 50px 50px;
     background-size: 10px 10px;
+    overflow: hidden;
 `;
 
 export const PanelWrapper = styled.div`
@@ -18,6 +19,7 @@ export const PanelWrapper = styled.div`
 
 export const Panel = styled.div`
     flex: 1;
+    max-width: 100%;
 `
 
 export const PreWrap = styled.div`
@@ -36,5 +38,12 @@ export const SectionTitle = styled.div`
 export const FlexRow =  styled.div`
     display: flex;
     flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+`;
+
+export const FlexCol =  styled.div`
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 `;
