@@ -139,6 +139,7 @@ export const normalizeElkGraphCoordinates = (graph, elkGraph) => {
   }
 }
 
+// did not work :/
 export const computeCameraRatio = (graph, viewWidth = 1, viewHeight = 1) => {
   let minX = Infinity, minY = Infinity;
   let maxX = -Infinity, maxY = -Infinity;
@@ -161,7 +162,7 @@ export const computeCameraRatio = (graph, viewWidth = 1, viewHeight = 1) => {
 
   console.log('ratioX', { ratioX, ratioY, safeRatio, graphWidth, graphHeight })
 
-  return 0.75; // because Sigma's ratio is inverse (zoom out)
+  return 0.75;
 }
 
 export const scaleLayoutForSigma = (elkLayoutResult, scaleFactor = 0.001) => {

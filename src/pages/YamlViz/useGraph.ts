@@ -1,34 +1,33 @@
-import Graph, { DirectedGraph } from 'graphology';
+import { DirectedGraph } from 'graphology';
 import Sigma from 'sigma';
 import ELK from "elkjs/lib/elk.bundled.js";
-import { computeCameraRatio, getAncestors, layoutDAG, normalizeElkGraphCoordinates, scaleLayoutForSigma, yamlToElkGraph } from './utils';
+import { computeCameraRatio, getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
 import { useCallback, useEffect, useRef } from 'react';
-import { setFocusedNode, setHighlightedPath, setHoveredNode, setNodeMap, setSelectedNodes, useGraphStore } from './state';
+import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore } from './state';
 
 const useGraph = () => {
     const containerRef = useRef(null);
     const graphRef: any = useRef(null);
     const rendererRef: any = useRef(null);
 
-    const { selectedNodes, focusedNode } = useGraphStore();
+    const { selectedNodes, focusedNode, hideBackgroundNodes, fullscreen } = useGraphStore();
 
 
     const handleRender = ({ parsedYaml }) => {
         console.log('parsedYaml', parsedYaml);
 
         // cleanup previous instance
-        if(rendererRef.current) {
+        if (rendererRef.current) {
             rendererRef.current.kill();
         }
-
-        if(graphRef.current) {
+        if (graphRef.current) {
             graphRef.current.clear();
         }
+        clearState();
 
         const elk = new ELK();
 
         const elkInput = yamlToElkGraph({ data: parsedYaml });
-
 
         console.log('elkInput', elkInput);
 
@@ -62,43 +61,51 @@ const useGraph = () => {
 
             // this aligns x and y coords, otherwise camera breaks
             normalizeElkGraphCoordinates(graph, elkOutput);
-            console.log('elkOutput::post', elkOutput);
+            console.log('elkOutput (normalized)', elkOutput);
 
             // Add edges
             elkOutput.edges.forEach((edge) => {
                 graph.addEdge(edge.sources[0], edge.targets[0], { type: 'arrow' });
             });
 
+            console.log(`generated graphology instance with ${graph.order} nodes`);
+
             // Render
             rendererRef.current = new Sigma(graph, containerRef.current, {
                 renderLabels: true,
                 nodeReducer: (node, data) => {
-                    const { selectedNodes, highlightedPath } = useGraphStore.getState();
+                    const { selectedNodes, highlightedPath, hideBackgroundNodes, hoverPath } = useGraphStore.getState();
 
-                    const isHoveredPath = highlightedPath.has(node);
+                    const isHighlightedPath = highlightedPath.has(node) || hoverPath.has(node);
                     const isSelected = selectedNodes.has(node);
 
                     // console.log('nodeReducer', { highlightedPath, searchedNode, node, isHoveredPath, isSearched });
 
                     return {
                         ...data,
-                        color: isSelected ? '#9C27B0' : isHoveredPath ? '#FF9800' : '#2196F3',
+                        color: isSelected ? '#9C27B0' : isHighlightedPath ? '#FF9800' : '#2196F3',
                         size: isSelected ? 10 : data.size || 5,
-                        zIndex: isHoveredPath ? 1 : 0,
+                        zIndex: isHighlightedPath ? 1 : 0,
+                        hidden: hideBackgroundNodes && !isHighlightedPath,
                     };
                 },
                 edgeReducer: (edge, data) => {
-                    const { highlightedPath } = useGraphStore.getState();
-                    if (!highlightedPath.size) return data;
+                    const { highlightedPath, hoverPath } = useGraphStore.getState();
 
                     const [source, target] = graph.extremities(edge);
-                    const isHighlighted =
-                        highlightedPath.has(source) && highlightedPath.has(target);
+                    const isHighlighted = (highlightedPath.has(source) && highlightedPath.has(target)) || (
+                        hoverPath.has(source) && hoverPath.has(target)
+                    );
+
+                    const graphHasHighlight = highlightedPath.size > 0 || hoverPath.size > 0;
+
+                    const defaultSize = graphHasHighlight ? 0.5 : data.size;
+                    const defaultColor = graphHasHighlight ? "#eee" : data.color;
 
                     return {
                         ...data,
-                        color: isHighlighted ? "#FF5722" : "#eee",
-                        size: isHighlighted ? 2 : 0.5,
+                        color: isHighlighted ? "#FF5722" : defaultColor,
+                        size: isHighlighted ? 2 : defaultSize,
                     };
                 },
             });
@@ -110,7 +117,7 @@ const useGraph = () => {
 
                 setHoveredNode(node);
                 const ancestors = getAncestors(graph, new Set([node]));
-                setHighlightedPath(ancestors);
+                setHoverPath(ancestors);
                 rendererRef.current.refresh();
             });
 
@@ -119,7 +126,7 @@ const useGraph = () => {
                 if (!highlightOnHover) { return; }
 
                 setHoveredNode(null);
-                setHighlightedPath(new Set());
+                setHoverPath(new Set());
                 rendererRef.current.refresh();
             });
 
@@ -130,12 +137,13 @@ const useGraph = () => {
 
             rendererRef.current?.getCamera().animatedReset();
             setNodeMap(nodeMap);
-            console.log('nodeMap', nodeMap);
 
             window.camera = rendererRef.current?.getCamera();
             window.sigma = rendererRef.current;
 
             rendererRef.current.setSetting('zoomMin', 0.1);
+
+            console.log("Rendered sigma graph, use window.sigma and window.camera for debugging");
         });
     }
 
@@ -146,7 +154,6 @@ const useGraph = () => {
         const graph = graphRef.current;
 
         const nodeId = graph.nodes().find((node) => {
-            console.log('node', node);
             const label = graph.getNodeAttribute(node, 'label');
             return node === searchQuery || label === searchQuery;
         });
@@ -162,14 +169,13 @@ const useGraph = () => {
         const graph = graphRef.current
         const camera = rendererRef.current?.getCamera();
         const { width, height } = rendererRef.current.getDimensions();
-        const computedRatio = computeCameraRatio(graph, width, height);
 
         const nodeAttr = graph.getNodeAttributes(nodeId);
 
         const nodeCount = graph.order;
-        const ratio = Math.min(1, Math.max(0.1, 100 / nodeCount)); 
+        const approxRatio = Math.min(1, Math.max(0.1, 100 / nodeCount));
 
-        console.log('ratio', { ratio,  width, height, nodeAttr, nodeCount, computedRatio });
+        console.log('focusCameraOnNode', { approxRatio, width, height, nodeAttr, nodeCount });
 
         // Zoom in on the node
         camera?.animate(
@@ -177,6 +183,33 @@ const useGraph = () => {
             { duration: 600 } // options
         );
     }
+
+    const resetCamera = () => {
+        const camera = rendererRef.current?.getCamera();
+        camera.animate(
+            {
+                x: 0.5,
+                y: 0.5,
+                ratio: 1, // full zoomed-out normalized view
+            },
+            { duration: 600 }
+        );
+        setFocusedNode(null);
+    };
+
+    const getNodeInfo = (node) => {
+        if (node) {
+            return graphRef.current.getNodeAttributes(node);
+        }
+    }
+
+    const forceRefresh = () => {
+        if (rendererRef.current) {
+            rendererRef.current.refresh();
+            resetCamera();
+        }
+    }
+
 
     useEffect(() => {
         const graph = graphRef.current
@@ -195,27 +228,13 @@ const useGraph = () => {
         }
     }, [focusedNode]);
 
+    // trigger refresh on state change
+    useEffect(() => {
+        forceRefresh();
+    }, [hideBackgroundNodes, fullscreen]);
 
-    const resetCamera = () => {
-        const camera = rendererRef.current?.getCamera();
-        camera.animate(
-            {
-                x: 0.5,
-                y: 0.5,
-                ratio: 1, // full zoomed-out normalized view
-            },
-            { duration: 600 }
-        );
-        setFocusedNode(null);
-    };
 
-    const getNodeInfo = (node) => {
-        if(node) {
-            return graphRef.current.getNodeAttributes(node);
-        }
-    }
-
-    return { containerRef, handleRender, handleSearch, resetCamera, focusCameraOnNode, getNodeInfo };
+    return { containerRef, handleRender, handleSearch, resetCamera, focusCameraOnNode, getNodeInfo, forceRefresh };
 }
 
 export default useGraph;

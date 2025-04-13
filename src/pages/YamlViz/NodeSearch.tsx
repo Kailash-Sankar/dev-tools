@@ -42,6 +42,7 @@ const NodeSearch = () => {
 
         setSearchQuery(nodeKey);
         setSelectedNodes(new Set(nodeIds));
+        setOpen(false);
     }
 
     return (
@@ -50,7 +51,7 @@ const NodeSearch = () => {
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button variant="outline" className="w-[250px] justify-start">
-                            {<>Search with autocomplete</>}
+                            {(!open && searchQuery) ? <>{searchQuery}</> : <>Search for nodes</>}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0" side="right" align="start">
