@@ -49,4 +49,8 @@ export const toolList = [
       title: "Image Compressor",
       url: "/img-compressor",
     },
+    {
+      title: "Yaml Viz",
+      url: "/yaml-viz",
+    },
   ]
