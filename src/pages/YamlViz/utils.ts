@@ -1,7 +1,5 @@
 import yaml from 'js-yaml';
 
-import testYaml from './sam'
-
 // Sample YAML string (you can load a file here)
 const rawYaml = `
 server:
@@ -18,7 +16,7 @@ server:
 `;
 
 
-// Parse YAML 
+// Parse YAML
 export const parseYaml = (inputFile = rawYaml) => {
   return yaml.load(inputFile);
 }
@@ -169,25 +167,25 @@ export const scaleLayoutForSigma = (elkLayoutResult, scaleFactor = 0.001) => {
   // Find the bounds of the ELK layout
   let minX = Infinity, minY = Infinity;
   let maxX = -Infinity, maxY = -Infinity;
-  
+
   elkLayoutResult.children.forEach(node => {
     minX = Math.min(minX, node.x);
     minY = Math.min(minY, node.y);
     maxX = Math.max(maxX, node.x + node.width);
     maxY = Math.max(maxY, node.y + node.height);
   });
-  
+
   // Scale the layout to fit Sigma's expectations
   elkLayoutResult.children.forEach(node => {
     // Scale down the positions
     const scaledX = node.x * scaleFactor;
     const scaledY = node.y * scaleFactor;
-    
+
     // Update the node with scaled coordinates
     node.x = scaledX;
     node.y = scaledY;
   });
-  
+
   return elkLayoutResult;
 }
 
