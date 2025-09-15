@@ -39,17 +39,25 @@ export const useTodos = (): UseTodosReturn => {
    * Load todos from storage
    */
   const loadTodos = useCallback(async () => {
+    console.log('useTodos: Starting to load todos...');
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Add a small delay to ensure IndexedDB is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const response = await todoStorage.getTodos();
+      console.log('useTodos: Got response from storage:', response);
+
       if (response.success && response.todos) {
+        console.log('useTodos: Setting', response.todos.length, 'todos in state');
         setState(prev => ({
           ...prev,
           todos: response.todos!,
           isLoading: false
         }));
       } else {
+        console.error('useTodos: Failed to load todos:', response.error);
         setState(prev => ({
           ...prev,
           error: response.error || 'Failed to load todos',
@@ -57,6 +65,7 @@ export const useTodos = (): UseTodosReturn => {
         }));
       }
     } catch (error) {
+      console.error('useTodos: Error loading todos:', error);
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to load todos',
@@ -66,10 +75,41 @@ export const useTodos = (): UseTodosReturn => {
   }, []);
 
   /**
-   * Initialize todos on mount
+   * Initialize todos on mount with retry logic
    */
   useEffect(() => {
-    loadTodos();
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const loadWithRetry = async () => {
+      try {
+        await loadTodos();
+      } catch (error) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`useTodos: Retry attempt ${retryCount}/${maxRetries}`);
+          setTimeout(loadWithRetry, 1000 * retryCount); // Exponential backoff
+        } else {
+          console.error('useTodos: Max retries reached, giving up');
+        }
+      }
+    };
+
+    loadWithRetry();
+
+    // Listen for visibility changes to reload data when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('useTodos: Tab became visible, reloading todos...');
+        loadTodos();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [loadTodos]);
 
   /**
