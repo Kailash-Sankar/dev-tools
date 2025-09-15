@@ -9,19 +9,20 @@ import ToolBar from './layout/ToolBar'
 import { ContentWrapper } from './layout/styled'
 import { SkeletonCard } from './components/CardLoader';
 
-const JSONDiff = lazy(() => import('./pages/JSON/Diff')) 
-const JSONPrettyPrint = lazy(() => import('./pages/JSON/PrettyPrint')) 
-const Base64Encode = lazy(() => import('./pages/base64/Encode')) 
-const Base64Decode = lazy(() => import('./pages/base64/Decode')) 
-const URIEncode = lazy(() => import('./pages/URI/Encode')) 
-const URIDecode = lazy(() => import('./pages/URI/Decode')) 
-const TextLineDiff = lazy(() => import('./pages/Text/LineDiff')) 
-const TextCharDiff = lazy(() => import('./pages/Text/CharDiff')) 
+const JSONDiff = lazy(() => import('./pages/JSON/Diff'))
+const JSONPrettyPrint = lazy(() => import('./pages/JSON/PrettyPrint'))
+const Base64Encode = lazy(() => import('./pages/base64/Encode'))
+const Base64Decode = lazy(() => import('./pages/base64/Decode'))
+const URIEncode = lazy(() => import('./pages/URI/Encode'))
+const URIDecode = lazy(() => import('./pages/URI/Decode'))
+const TextLineDiff = lazy(() => import('./pages/Text/LineDiff'))
+const TextCharDiff = lazy(() => import('./pages/Text/CharDiff'))
 const DateTimezone = lazy(() => import('./pages/Date/Timezone'));
 const DateEpoch = lazy(() => import('./pages/Date/Epoch'));
 const ColorPicker = lazy(() => import('./pages/Colors/Picker'));
 const ImageCompressor = lazy(() => import('./pages/Image/Compressor'));
 const YamlViz = lazy(() => import('./pages/YamlViz'));
+const TodoList = lazy(() => import('./pages/Productivity/TodoList'));
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/color-picker" element={<ColorPicker />} />
                 <Route path="/img-compressor" element={<ImageCompressor />} />
                 <Route path="/yaml-viz" element={<YamlViz/>} />
+                <Route path="/todo-list" element={<TodoList/>} />
               </Routes>
             </Suspense>
           </ContentWrapper>
