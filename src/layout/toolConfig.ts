@@ -53,4 +53,8 @@ export const toolList = [
       title: "Yaml Viz",
       url: "/yaml-viz",
     },
+    {
+      title: "Todo List",
+      url: "/todo-list",
+    },
   ]
