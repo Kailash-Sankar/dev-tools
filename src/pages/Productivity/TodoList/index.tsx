@@ -32,6 +32,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertCircle, X } from 'lucide-react';
 
+// Import debug utilities in development
+if (process.env.NODE_ENV === 'development') {
+  import('./utils/debug');
+}
+
 class TodoListErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }

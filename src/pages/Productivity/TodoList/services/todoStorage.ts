@@ -37,18 +37,24 @@ class TodoStorageService implements TodoOperations {
   private db: IDBPDatabase<TodoDBSchema> | null = null;
   private isIndexedDBAvailable = true;
   private readonly storageKey = 'devtools-todos';
+  private initializationPromise: Promise<void> | null = null;
+  private isInitialized = false;
 
   constructor() {
-    this.initializeDatabase();
+    this.initializationPromise = this.initializeDatabase();
   }
 
   /**
    * Initialize IndexedDB database with fallback detection
    */
   private async initializeDatabase(): Promise<void> {
+    if (this.isInitialized) return;
+
     try {
+      console.log('TodoStorage: Initializing IndexedDB...');
       this.db = await openDB<TodoDBSchema>(DB_CONFIG.DB_NAME, DB_CONFIG.DB_VERSION, {
         upgrade(db) {
+          console.log('TodoStorage: Creating object store and indexes...');
           // Create todos object store
           const store = db.createObjectStore('todos', { keyPath: 'id' });
 
@@ -58,9 +64,21 @@ class TodoStorageService implements TodoOperations {
           store.createIndex('updatedAt', 'updatedAt');
         },
       });
+      console.log('TodoStorage: IndexedDB initialized successfully');
+      this.isInitialized = true;
     } catch (error) {
-      console.warn('IndexedDB not available, falling back to localStorage:', error);
+      console.warn('TodoStorage: IndexedDB not available, falling back to localStorage:', error);
       this.isIndexedDBAvailable = false;
+      this.isInitialized = true;
+    }
+  }
+
+  /**
+   * Ensure database is initialized before operations
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.isInitialized && this.initializationPromise) {
+      await this.initializationPromise;
     }
   }
 
@@ -128,6 +146,8 @@ class TodoStorageService implements TodoOperations {
    * Create a new todo item
    */
   async createTodo(request: CreateTodoRequest): Promise<CreateTodoResponse> {
+    await this.ensureInitialized();
+
     try {
       // Validate input
       const textValidation = this.validateTodoText(request.text);
@@ -173,7 +193,10 @@ class TodoStorageService implements TodoOperations {
    * Get all todos, optionally filtered by priority
    */
   async getTodos(request?: GetTodosRequest): Promise<GetTodosResponse> {
+    await this.ensureInitialized();
+
     try {
+      console.log('TodoStorage: Getting todos, filter:', request?.filter || 'all');
       let todos: Todo[];
 
       if (this.isIndexedDBAvailable && this.db) {
@@ -195,6 +218,7 @@ class TodoStorageService implements TodoOperations {
       // Sort by creation date (newest first)
       todos.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
+      console.log('TodoStorage: Retrieved', todos.length, 'todos');
       return { success: true, todos };
     } catch (error) {
       console.error('Error getting todos:', error);
@@ -209,6 +233,8 @@ class TodoStorageService implements TodoOperations {
    * Update an existing todo
    */
   async updateTodo(request: UpdateTodoRequest): Promise<UpdateTodoResponse> {
+    await this.ensureInitialized();
+
     try {
       // Validate input
       if (request.text !== undefined) {
@@ -279,6 +305,8 @@ class TodoStorageService implements TodoOperations {
    * Delete a todo by ID
    */
   async deleteTodo(request: DeleteTodoRequest): Promise<DeleteTodoResponse> {
+    await this.ensureInitialized();
+
     try {
       if (this.isIndexedDBAvailable && this.db) {
         // Check if todo exists
