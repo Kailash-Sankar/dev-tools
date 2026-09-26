@@ -1,92 +1,65 @@
-import type React from "react"
-import { Textarea } from "@/components/ui/textarea"
-import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator"
+import { useState } from "react";
+
 import { diffJson } from "diff";
-import type { Change } from "diff"
+import type { Change } from "diff";
 
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import { atomKeys } from '@/utils/atomKeys';
-
-const dataAtom = atomWithStorage(atomKeys.JSONDiffOut, []);
-const valueAtomA = atomWithStorage(atomKeys.JSONDiffA, '');
-const valueAtomB = atomWithStorage(atomKeys.JSONDiffB, '');
+import { Button } from "@/components/ui/button";
+import { DiffOutput, ToolLayout, ToolPanel, ToolTextarea } from "@/components/tool";
+import { usePersistentState } from "@/hooks/use-persistent-state";
+import { useToast } from "@/hooks/use-toast";
 
 const JSONDiff = () => {
-    const [valueA, setValueA] = useAtom(valueAtomA);
-    const [valueB, setValueB] = useAtom(valueAtomB);
+  const { toast } = useToast();
+  const [valueA, setValueA] = usePersistentState("jsonDiffA", "");
+  const [valueB, setValueB] = usePersistentState("jsonDiffB", "");
+  const [data, setData] = useState<Change[]>([]);
 
-    const [data, setData] = useAtom(dataAtom);
-
-    const handleChangeA = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValueA(e.target.value);
+  const handleClick = () => {
+    // diffJson throws on invalid JSON, which previously took the whole page
+    // down. Catch it and report instead.
+    try {
+      setData(diffJson(valueA, valueB));
+    } catch {
+      toast({
+        title: "Invalid JSON",
+        description: "Both inputs must be valid JSON to compare.",
+        variant: "destructive",
+      });
     }
+  };
 
-    const handleChangeB = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValueB(e.target.value);
-    }
+  return (
+    <ToolLayout>
+      <ToolPanel
+        title="Input"
+        actions={
+          <>
+            <Button onClick={handleClick}>Diff</Button>
+            <Button variant="outline" onClick={() => { setValueA(""); setValueB(""); setData([]); }}>
+              Clear
+            </Button>
+          </>
+        }
+      >
+        <ToolTextarea
+          value={valueA}
+          onChange={(e) => setValueA(e.target.value)}
+          placeholder="Paste JSON A"
+          aria-label="Input A"
+        />
+        <ToolTextarea
+          value={valueB}
+          onChange={(e) => setValueB(e.target.value)}
+          placeholder="Paste JSON B"
+          aria-label="Input B"
+        />
+      </ToolPanel>
 
-    const handleClick = () => {
-        const diffData: Change[] = diffJson(valueA, valueB);
-        setData(diffData);
-    }
-
-    return (
-        <PanelWrapper>
-            <Panel>
-                <Card style={{ height: '100%' }}>
-                    <CardHeader>
-                        <CardTitle>Input</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea rows={15} placeholder="Paste JSON A" onChange={handleChangeA} defaultValue={valueA} />
-                        <Separator className='m-2' />
-                        <Textarea rows={15} placeholder="Paste JSON B" onChange={handleChangeB} defaultValue={valueB} />
-                    </CardContent>
-                    <CardFooter>
-                        <Button onClick={handleClick}>Diff</Button>
-                    </CardFooter>
-                </Card>
-            </Panel>
-            <Panel>
-                <Card style={{ height: '100%' }}>
-                    <CardHeader>
-                        <CardTitle>Output</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {data.length > 0 ? (
-                           <PreWrap>
-                                {data.map((part: Change, index) => {
-                                    const color = part.added
-                                        ? "green"
-                                        : part.removed
-                                            ? "red"
-                                            : "white";
-                                    return (
-                                        <span key={index} style={{ color }}>
-                                            {part.value}
-                                        </span>
-                                    );
-                                })}
-                            </PreWrap>
-                        ) : (
-                            <p>No differences or invalid input.</p>
-                        )}
-                    </CardContent>
-                </Card>
-            </Panel>
-        </PanelWrapper>
-    )
-}
+      <ToolPanel title="Output">
+        <DiffOutput changes={data} showStrikethrough={false} />
+      </ToolPanel>
+    </ToolLayout>
+  );
+};
 
 export default JSONDiff;

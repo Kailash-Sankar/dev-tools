@@ -1,61 +1,41 @@
-import type React from "react"
-import { useState } from 'react';
-import { Textarea } from "@/components/ui/textarea"
-import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
-
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-
+import { ToolLayout, ToolOutput, ToolPanel, ToolTextarea } from "@/components/tool";
+import { uriEncode } from "@/utils/codec";
 
 const URIEncode = () => {
-    const [value, setValue] = useState('');
-    const [data, setData] = useState('');
+  const [value, setValue] = useState("");
+  const [data, setData] = useState("");
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValue(e.target.value);
-    }
+  const handleClick = () => setData(uriEncode(value));
 
-    const handleClick = () => {
-       const encodedData = encodeURIComponent(value);
-        setData(encodedData);
-    }
+  return (
+    <ToolLayout>
+      <ToolPanel
+        title="Input"
+        actions={
+          <>
+            <Button onClick={handleClick}>Encode</Button>
+            <Button variant="outline" onClick={() => { setValue(""); setData(""); }}>
+              Clear
+            </Button>
+          </>
+        }
+      >
+        <ToolTextarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Paste string to encode"
+          aria-label="Input"
+        />
+      </ToolPanel>
 
-
-    return (
-        <PanelWrapper>
-            <Panel>
-                <Card style={{ height: '100%' }}>
-                    <CardHeader>
-                        <CardTitle>Input</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea rows={25} placeholder="Paste string to encode" onChange={handleChange} />
-                    </CardContent>
-                    <CardFooter>
-                        <Button onClick={handleClick}>Format</Button>
-                    </CardFooter>
-                </Card>
-            </Panel>
-            <Panel>
-                <Card style={{ height: '100%' }}>
-                    <CardHeader>
-                        <CardTitle>Output</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <PreWrap>{data}</PreWrap>
-                    </CardContent>
-                </Card>
-            </Panel>
-        </PanelWrapper>
-
-
-    )
-}
+      <ToolPanel title="Output" actions={<Button variant="outline" onClick={() => navigator.clipboard?.writeText(data)} disabled={!data}>Copy</Button>}>
+        <ToolOutput empty="Encoded output appears here.">{data}</ToolOutput>
+      </ToolPanel>
+    </ToolLayout>
+  );
+};
 
 export default URIEncode;

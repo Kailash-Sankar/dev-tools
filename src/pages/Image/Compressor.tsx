@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import pica from "pica";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
     Select,
     SelectContent,
@@ -9,210 +13,264 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Container,
-    Toolbox,
-    Panels,
-    Panel,
-    ImagePreview,
-    SizeInfo,
-} from "./styled";
+import { ToolLayout, ToolPanel } from "@/components/tool";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+const FORMATS = [
+    { value: "image/jpeg", label: "JPEG", ext: "jpg" },
+    { value: "image/webp", label: "WEBP", ext: "webp" },
+    { value: "image/png", label: "PNG", ext: "png" },
+] as const;
+
+const kb = (bytes: number) => (bytes / 1024).toFixed(2);
 
 const ImageCompression = () => {
-    const [originalImage, setOriginalImage] = useState<string | null>(null);
-    const [originalFileName, setOriginalFileName] = useState<string>("compressed-image");
-    const [compressedImage, setCompressedImage] = useState<string | null>(null);
-    const [width, setWidth] = useState<number>(0);
-    const [height, setHeight] = useState<number>(0);
-    const [quality, setQuality] = useState<number>(0.8);
+    const { toast } = useToast();
+    const picaInstance = useRef(pica()).current;
+
+    const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+    const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
+
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
+    const [originalWidth, setOriginalWidth] = useState(0);
+    const [originalHeight, setOriginalHeight] = useState(0);
+    const [quality, setQuality] = useState(0.8);
     const [format, setFormat] = useState<string>("image/jpeg");
-    const [originalSize, setOriginalSize] = useState<number>(0);
-    const [compressedSize, setCompressedSize] = useState<number>(0);
-    const [originalImageWidth, setOriginalImageWidth] = useState<number>(0);
-    const [originalImageHeight, setOriginalImageHeight] = useState<number>(0);
+    const [originalSize, setOriginalSize] = useState(0);
+    const [compressedSize, setCompressedSize] = useState(0);
+    const [name, setName] = useState("compressed-image");
+    const [busy, setBusy] = useState(false);
 
-    const resetCompressedImage = () => {
-        setCompressedImage(null);
+    // Object URLs are not garbage collected. The previous version created one
+    // per compression and never revoked it, so repeatedly compressing a large
+    // image leaked the full decoded bitmap each time.
+    const revokeCompressed = useCallback(() => {
+        setCompressedUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
         setCompressedSize(0);
-    };
+    }, []);
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            resetCompressedImage();
-            const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
-            setOriginalFileName(fileNameWithoutExtension);
+    useEffect(() => revokeCompressed, [revokeCompressed]);
 
-            setFormat(file.type);
-            
-            setOriginalSize(file.size);
-            const reader = new FileReader();
-            reader.onload = (event: ProgressEvent<FileReader>) => {
-                setOriginalImage(event.target?.result ?? null);
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    setWidth(img.width);
-                    setHeight(img.height);
-                    setOriginalImageWidth(img.width);
-                    setOriginalImageHeight(img.height);
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handlePropertyChange = (setter: React.Dispatch<React.SetStateAction<number>>) => {
-        return (e: React.ChangeEvent<HTMLInputElement>) => {
-            resetCompressedImage();
-            setter(Number(e.target.value));
+    useEffect(() => {
+        return () => {
+            if (originalUrl) URL.revokeObjectURL(originalUrl);
         };
-    };
+    }, [originalUrl]);
 
-    const handleFormatChange = (value: string) => {
-        resetCompressedImage();
-        setFormat(value);
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const picked = e.target.files?.[0];
+        if (!picked) return;
+
+        revokeCompressed();
+        setOriginalSize(picked.size);
+        setName(picked.name.replace(/\.[^.]+$/, "") || "compressed-image");
+
+        // Keep the select in sync with the uploaded type, but only when we
+        // actually support it -- otherwise the Select renders blank.
+        const matching = FORMATS.find((f) => f.value === picked.type);
+        if (matching) setFormat(matching.value);
+
+        try {
+            const bitmap = await createImageBitmap(picked);
+            setOriginalWidth(bitmap.width);
+            setOriginalHeight(bitmap.height);
+            // Reset target size to the source so the tool starts 1:1.
+            setWidth(bitmap.width);
+            setHeight(bitmap.height);
+            bitmap.close();
+
+            setOriginalUrl((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return URL.createObjectURL(picked);
+            });
+        } catch {
+            toast({ title: "Error", description: "Could not read that image.", variant: "destructive" });
+        }
+
+        // Allow re-selecting the same file.
+        e.target.value = "";
     };
 
     const handleCompress = async () => {
-        if (!originalImage) return;
+        if (!originalUrl) return;
 
-        const img = new Image();
-        img.src = originalImage;
+        setBusy(true);
+        revokeCompressed();
 
-        img.onload = async () => {
-            const sourceCanvas = document.createElement("canvas");
-            const targetCanvas = document.createElement("canvas");
+        try {
+            const img = new Image();
+            img.src = originalUrl;
+            await img.decode();
 
-            sourceCanvas.width = img.width;
-            sourceCanvas.height = img.height;
-
-            const ctx = sourceCanvas.getContext("2d");
+            const source = document.createElement("canvas");
+            source.width = img.naturalWidth;
+            source.height = img.naturalHeight;
+            const ctx = source.getContext("2d");
             if (!ctx) throw new Error("Could not get 2D canvas context");
             ctx.drawImage(img, 0, 0);
 
-            const newWidth = width > 0 ? width : img.width;
-            const newHeight = height > 0 ? height : img.height;
+            const target = document.createElement("canvas");
+            // Guard against 0/NaN from cleared number inputs.
+            target.width = width > 0 ? width : img.naturalWidth;
+            target.height = height > 0 ? height : img.naturalHeight;
 
-            targetCanvas.width = newWidth;
-            targetCanvas.height = newHeight;
+            await picaInstance.resize(source, target);
+            const blob = await picaInstance.toBlob(target, format, quality);
 
-            const picaInstance = pica();
-            await picaInstance.resize(sourceCanvas, targetCanvas);
-            const blob = await picaInstance.toBlob(targetCanvas, format, quality);
-
-            const compressedImageUrl = URL.createObjectURL(blob);
-            setCompressedImage(compressedImageUrl);
+            setCompressedUrl(URL.createObjectURL(blob));
             setCompressedSize(blob.size);
-        };
-    };
-
-    const handleDownload = () => {
-        if (compressedImage) {
-            const link = document.createElement("a");
-            link.href = compressedImage;
-            link.download = `${originalFileName}.${format.split("/")[1]}`;
-            link.click();
+        } catch (err) {
+            toast({
+                title: "Compression failed",
+                description: err instanceof Error ? err.message : "Unknown error",
+                variant: "destructive",
+            });
+        } finally {
+            setBusy(false);
         }
     };
 
-    const sizeSaving = originalSize - compressedSize;
-    const savingPercentage = originalSize
-        ? ((sizeSaving / originalSize) * 100).toFixed(2)
-        : "0.00";
-    const isSavingPositive = sizeSaving > 0;
+    const handleDownload = () => {
+        if (!compressedUrl) return;
+        const ext = FORMATS.find((f) => f.value === format)?.ext ?? "jpg";
+        const link = document.createElement("a");
+        link.href = compressedUrl;
+        link.download = `${name}.${ext}`;
+        link.click();
+    };
+
+    const saved = originalSize - compressedSize;
+    const savedPct = originalSize ? (saved / originalSize) * 100 : 0;
 
     return (
-        <Container>
-            <Toolbox>
-                <div>
-                    <label>Upload Image</label>
-                    <Input type="file" accept="image/*" onChange={handleImageUpload} />
-                </div>
-                <div>
-                    <label>Width (px)</label>
-                    <Input
-                        type="number"
-                        placeholder="Width"
-                        value={width}
-                        onChange={handlePropertyChange(setWidth)}
-                    />
-                </div>
-                <div>
-                    <label>Height (px)</label>
-                    <Input
-                        type="number"
-                        placeholder="Height"
-                        value={height}
-                        onChange={handlePropertyChange(setHeight)}
-                    />
-                </div>
-                <div>
-                    <label>Format</label>
-                    <Select onValueChange={(value) => handleFormatChange(value)} value={format}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Format" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="image/jpeg">JPEG</SelectItem>
-                            <SelectItem value="image/png">PNG</SelectItem>
-                            <SelectItem value="image/webp">WEBP</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <label>Quality (0.1 - 1.0)</label>
-                    <Input
-                        type="number"
-                        step="0.1"
-                        min="0.1"
-                        max="1.0"
-                        placeholder="Quality"
-                        value={quality}
-                        onChange={(e) => {
-                            resetCompressedImage();
-                            setQuality(Number(e.target.value));
-                        }}
-                    />
-                </div>
-                <Button onClick={handleCompress}>Compress</Button>
-            </Toolbox>
+        <ToolLayout>
+            <ToolPanel
+                title="Source"
+                actions={
+                    <Button onClick={handleCompress} disabled={!originalUrl || busy}>
+                        {busy ? "Compressing..." : "Compress"}
+                    </Button>
+                }
+            >
+                <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="upload">Upload image</Label>
+                        <Input id="upload" type="file" accept="image/*" onChange={handleImageUpload} />
+                    </div>
 
-            <Panels>
-                <Panel>
-                    <h3>Original Image</h3>
-                    {originalImage && <ImagePreview src={originalImage} alt="Original" />}
-                    <p>Original Size: {(originalSize / 1024).toFixed(2)} KB</p>
-                    <p>
-                        Original Dimension: {originalImageWidth} x {originalImageHeight}
-                    </p>
-                </Panel>
-
-                <Panel>
-                    <h3>Compressed Image</h3>
-                    {compressedImage && (
-                        <>
-                            <ImagePreview src={compressedImage} alt="Compressed" />
-                            <p>Compressed Size: {(compressedSize / 1024).toFixed(2)} KB</p>
-                            <p>
-                                Compressed Dimension: {width} x {height}
-                            </p>
-                            <SizeInfo isSavingPositive={isSavingPositive}>
-                                Size Saving: {savingPercentage}%
-                            </SizeInfo>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="w">Width (px)</Label>
                             <Input
-                                type="text"
-                                placeholder="File name"
-                                value={originalFileName}
-                                onChange={(e) => setOriginalFileName(e.target.value)}
+                                id="w" type="number" min={1} inputMode="numeric"
+                                value={width || ""} placeholder="Auto"
+                                onChange={(e) => { revokeCompressed(); setWidth(Number(e.target.value)); }}
                             />
-                            <Button onClick={handleDownload}>Download</Button>
-                        </>
-                    )}
-                </Panel>
-            </Panels>
-        </Container>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="h">Height (px)</Label>
+                            <Input
+                                id="h" type="number" min={1} inputMode="numeric"
+                                value={height || ""} placeholder="Auto"
+                                onChange={(e) => { revokeCompressed(); setHeight(Number(e.target.value)); }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <Label>Format</Label>
+                        <Select onValueChange={(v) => { revokeCompressed(); setFormat(v); }} value={format}>
+                            <SelectTrigger aria-label="Output format"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {FORMATS.map((f) => (
+                                    <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="q">Quality — {quality.toFixed(1)}</Label>
+                        <Slider
+                            id="q" min={0.1} max={1} step={0.1}
+                            value={[quality]}
+                            onValueChange={([v]) => { revokeCompressed(); setQuality(v); }}
+                            aria-label="Quality"
+                        />
+                    </div>
+                </div>
+            </ToolPanel>
+
+            <ToolPanel title="Result">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Figure
+                        caption="Original"
+                        src={originalUrl}
+                        size={originalSize}
+                        dims={`${originalWidth} x ${originalHeight}`}
+                    />
+                    <Figure
+                        caption="Compressed"
+                        src={compressedUrl}
+                        size={compressedSize}
+                        dims={compressedUrl ? `${width || originalWidth} x ${height || originalHeight}` : "—"}
+                    />
+                </div>
+
+                {compressedUrl && (
+                    <>
+                        <p
+                            className={cn(
+                                "font-mono text-sm",
+                                saved > 0 ? "text-green-500" : "text-red-500"
+                            )}
+                        >
+                            {saved > 0 ? "Saved" : "Grew by"} {Math.abs(savedPct).toFixed(2)}% (
+                            {kb(Math.abs(saved))} KB)
+                        </p>
+                        <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="name">File name</Label>
+                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                        </div>
+                        <Button onClick={handleDownload} className="w-fit">Download</Button>
+                    </>
+                )}
+            </ToolPanel>
+        </ToolLayout>
     );
 };
+
+function Figure({
+    caption,
+    src,
+    size,
+    dims,
+}: {
+    caption: string;
+    src: string | null;
+    size: number;
+    dims: string;
+}) {
+    return (
+        <figure className="flex min-w-0 flex-col items-center gap-1.5">
+            <figcaption className="text-sm text-muted-foreground">{caption}</figcaption>
+            <div className="flex h-[220px] w-full items-center justify-center overflow-hidden rounded-md border bg-muted/30">
+                {src ? (
+                    <img src={src} alt={caption} className="max-h-full max-w-full object-contain" />
+                ) : (
+                    <span className="text-xs text-muted-foreground">No image</span>
+                )}
+            </div>
+            <p className="text-center font-mono text-xs break-words">
+                {size > 0 ? `${kb(size)} KB` : "—"} · {dims}
+            </p>
+        </figure>
+    );
+}
 
 export default ImageCompression;

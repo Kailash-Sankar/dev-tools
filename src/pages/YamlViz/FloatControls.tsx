@@ -1,23 +1,24 @@
 import { Fullscreen } from "lucide-react";
-import { FloatingPanel } from "./styled";
-import { FlexRow } from "@/layout/styled";
+
+import { Button } from "@/components/ui/button";
 import { setFullscreen, useGraphStore } from "./state";
 
-
 const FloatControls = () => {
-
   const { fullscreen } = useGraphStore();
-  const handleClick = () => {
-    setFullscreen(!fullscreen);
-  }
 
   return (
-    <FloatingPanel>
-      <FlexRow>
-        <Fullscreen style={{ cursor: 'pointer' }} onClick={handleClick} />
-      </FlexRow>
-    </FloatingPanel>
-  )
-}
+    <div className="absolute right-[15px] bottom-[3px] z-99">
+      <Button
+        size="icon"
+        variant="secondary"
+        onClick={() => setFullscreen(!fullscreen)}
+        aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        aria-pressed={fullscreen}
+      >
+        <Fullscreen className="size-4" />
+      </Button>
+    </div>
+  );
+};
 
 export default FloatControls;

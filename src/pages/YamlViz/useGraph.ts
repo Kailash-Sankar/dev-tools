@@ -1,7 +1,9 @@
 import { DirectedGraph } from 'graphology';
-import type Sigma from 'sigma';
-import ELK from "elkjs/lib/elk.bundled.js";
+// Value import (not `import type`) -- Sigma is instantiated at runtime below,
+// and the class is also used as the ref's type.
+import Sigma from 'sigma';
 import type { ELKNode } from "elkjs";
+import { layoutGraph } from './elk';
 import { getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
 import { useEffect, useRef } from 'react';
 import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore, type NodeMap } from './state';
@@ -11,65 +13,87 @@ const useGraph = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<DirectedGraph | null>(null);
     const rendererRef = useRef<Sigma | null>(null);
+    const renderToken = useRef(0);
 
     const { selectedNodes, focusedNode, hideBackgroundNodes, fullscreen } = useGraphStore();
 
 
-    const handleRender = ({ parsedYaml }: { parsedYaml: ReturnType<typeof parseYaml> }) => {
+    const handleRender = async ({ parsedYaml }: { parsedYaml: ReturnType<typeof parseYaml> }) => {
+        // A render is async now that ELK lives in a worker. If the user hits
+        // Render again before the first layout finishes, only the newest
+        // result should be drawn -- otherwise a slow layout can land on top of
+        // a newer one and render stale data.
+        const token = ++renderToken.current;
+
         // cleanup previous instance
         if (rendererRef.current) {
             rendererRef.current.kill();
+            rendererRef.current = null;
         }
         if (graphRef.current) {
             graphRef.current.clear();
+            graphRef.current = null;
         }
         clearState();
 
-        const elk = new ELK();
-
         const elkInput = yamlToElkGraph({ data: parsedYaml });
-
         const nodeMap: NodeMap = {};
 
-        // Build ELK graph
-        elk.layout(elkInput).then((elkOutput) => {
+        // Yield to the event loop between batches so a large graph doesn't
+        // add one long uninterrupted block of graph construction. (Measured:
+        // graph building is not the bottleneck at these sizes -- Sigma's WebGL
+        // rendering is -- but batching keeps it from compounding.)
+        const yieldToUi = () => new Promise<void>((r) => setTimeout(r, 0));
+        const BATCH = 500;
+
+        try {
+            // ELK layout runs in a Web Worker (see ./elk.ts).
+            const elkOutput = await layoutGraph<{ children?: ELKNode[] }>(elkInput);
+
+            if (token !== renderToken.current) return; // superseded
+
             const graph = new DirectedGraph();
             graphRef.current = graph;
 
-            // Add nodes with layout positions
-            elkOutput.children?.forEach((node: ELKNode) => {
+            // Add nodes with layout positions, in batches.
+            const children = elkOutput.children ?? [];
+            for (let i = 0; i < children.length; i++) {
+                const node = children[i];
                 const label = node.labels?.[0]?.text ?? node.id;
 
                 graph.addNode(node.id, {
-                    label: node.labels[0].text,
+                    label,
                     x: node.x,
                     y: node.y,
                     size: 6,
                     color: '#0074D9',
                     value: node.value,
-                    // type: 'circle',
                 });
 
                 if (label in nodeMap) {
                     nodeMap[label].push(node.id);
                 } else {
-                    nodeMap[label] = [node.id]
+                    nodeMap[label] = [node.id];
                 }
-            });
+
+                if ((i + 1) % BATCH === 0) await yieldToUi();
+            }
 
             // this aligns x and y coords, otherwise camera breaks
             normalizeElkGraphCoordinates(graph, elkOutput);
-            console.log('elkOutput (normalized)', elkOutput);
 
-            // Add edges
-            elkOutput.edges.forEach((edge) => {
+            // Add edges, also in batches.
+            const edges = elkOutput.edges ?? [];
+            for (let i = 0; i < edges.length; i++) {
+                const edge = edges[i];
                 graph.addEdge(edge.sources[0], edge.targets[0], { type: 'arrow' });
-            });
+                if ((i + 1) % BATCH === 0) await yieldToUi();
+            }
 
-            console.log(`generated graphology instance with ${graph.order} nodes`);
+            if (token !== renderToken.current) return; // superseded
 
             // Render
-            rendererRef.current = new Sigma(graph, containerRef.current, {
+            const renderer = new Sigma(graph, containerRef.current, {
                 renderLabels: true,
                 nodeReducer: (node, data) => {
                     const { selectedNodes, highlightedPath, hideBackgroundNodes, hoverPath } = useGraphStore.getState();
@@ -109,40 +133,39 @@ const useGraph = () => {
             });
 
             // Event listeners
-            rendererRef.current.on("enterNode", ({ node }) => {
+            renderer.on("enterNode", ({ node }) => {
                 const { highlightOnHover } = useGraphStore.getState();
                 if (!highlightOnHover) { return; }
 
                 setHoveredNode(node);
                 const ancestors = getAncestors(graph, new Set([node]));
                 setHoverPath(ancestors);
-                rendererRef.current.refresh();
+                renderer.refresh();
             });
 
-            rendererRef.current.on("leaveNode", () => {
+            renderer.on("leaveNode", () => {
                 const { highlightOnHover } = useGraphStore.getState();
                 if (!highlightOnHover) { return; }
 
                 setHoveredNode(null);
                 setHoverPath(new Set());
-                rendererRef.current.refresh();
+                renderer.refresh();
             });
 
-            rendererRef.current.on("clickNode", ({ node }) => {
-                console.log("Node clicked:", node);
+            renderer.on("clickNode", ({ node }) => {
                 setSelectedNodes(new Set([node]));
             });
 
-            rendererRef.current?.getCamera().animatedReset();
+            rendererRef.current = renderer;
+
+            renderer.getCamera().animatedReset();
             setNodeMap(nodeMap);
 
-            window.camera = rendererRef.current?.getCamera();
-            window.sigma = rendererRef.current;
-
-            rendererRef.current.setSetting('zoomMin', 0.1);
-
-            console.log("Rendered sigma graph, use window.sigma and window.camera for debugging");
-        });
+            renderer.setSetting('zoomMin', 0.1);
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error("YAML layout failed", err);
+        }
     }
 
     const handleSearch = () => {
@@ -163,7 +186,7 @@ const useGraph = () => {
         }
     };
 
-    const focusCameraOnNode = (nodeId) => {
+    const focusCameraOnNode = (nodeId: string) => {
         const graph = graphRef.current
         const camera = rendererRef.current?.getCamera();
         const { width, height } = rendererRef.current.getDimensions();

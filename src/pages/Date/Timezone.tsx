@@ -1,114 +1,104 @@
-import type React from "react"
-import { useMemo, useState } from 'react';
-import { Panel, PanelWrapper } from '@/layout/styled';
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label"
-import { format } from "date-fns-tz";
-import { Input } from "@/components/ui/input"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Check, Pencil, RefreshCw, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import ZoneBlock from './ZoneBlock';
-import { atomWithStorage } from 'jotai/utils';
-import { atomKeys } from '@/utils/atomKeys';
+import { useMemo, useState } from "react";
 
-const zoneAtomA = atomWithStorage(atomKeys.dateZoneA, 'UTC');
-const zoneAtomB = atomWithStorage(atomKeys.dateZoneB, 'Asia/Kolkata');
-const zoneAtomC = atomWithStorage(atomKeys.dateZoneC, 'Etc/GMT-8');
-const zoneAtomD = atomWithStorage(atomKeys.dateZoneD, 'PST8PDT');
+import { format } from "date-fns-tz";
+import { Pencil, RefreshCw, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ToolLayout, ToolPanel } from "@/components/tool";
+import { usePersistentState } from "@/hooks/use-persistent-state";
+import { useToast } from "@/hooks/use-toast";
+import ZoneBlock from "./ZoneBlock";
+
+const ZONES = [
+  { key: "dateZoneA", fallback: "UTC" },
+  { key: "dateZoneB", fallback: "Asia/Kolkata" },
+  { key: "dateZoneC", fallback: "Etc/GMT-8" },
+  { key: "dateZoneD", fallback: "PST8PDT" },
+] as const;
 
 const Timezone = () => {
-    const [date, setDate] = useState(new Date());
-    const [inputDate, setInputDate] = useState('');
-    const [edit, setEdit] = useState(false);
-    const { toast } = useToast()
+  const [date, setDate] = useState(() => new Date());
+  const [inputDate, setInputDate] = useState("");
+  const [edit, setEdit] = useState(false);
+  const { toast } = useToast();
 
-    const formattedDate = useMemo(() => format(date, "yyyy-MM-dd HH:mm:ssXXX"), [date]);
+  const [zoneA, setZoneA] = usePersistentState("dateZoneA", "UTC");
+  const [zoneB, setZoneB] = usePersistentState("dateZoneB", "Asia/Kolkata");
+  const [zoneC, setZoneC] = usePersistentState("dateZoneC", "Etc/GMT-8");
+  const [zoneD, setZoneD] = usePersistentState("dateZoneD", "PST8PDT");
 
-    const refreshDate = () => {
-        setDate(new Date());
+  const setters = [setZoneA, setZoneB, setZoneC, setZoneD];
+  const zones = [zoneA, zoneB, zoneC, zoneD];
+
+  const formattedDate = useMemo(
+    () => format(date, "yyyy-MM-dd HH:mm:ssXXX"),
+    [date]
+  );
+
+  const applyDate = () => {
+    const newDate = new Date(inputDate);
+    if (Number.isNaN(newDate.getTime())) {
+      toast({ title: "Error", description: "Invalid Date", variant: "destructive" });
+      return;
     }
+    setDate(newDate);
+    setEdit(false);
+  };
 
-    const toggleEdit = () => {
-        setEdit(v => !v);
-    }
+  return (
+    <div className="flex flex-col gap-3 p-3">
+      <ToolLayout className="lg:grid-cols-1 lg:h-auto">
+        <ToolPanel
+          title="Input Date"
+          actions={
+            <>
+              {edit ? (
+                <>
+                  <Button size="sm" onClick={applyDate}>Apply</Button>
+                  <Button size="icon" variant="outline" onClick={() => setEdit(false)} aria-label="Cancel">
+                    <X size={14} />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button size="icon" variant="outline" onClick={() => { setInputDate(formattedDate); setEdit(true); }} aria-label="Edit date">
+                    <Pencil size={16} />
+                  </Button>
+                  <Button size="icon" variant="outline" onClick={() => setDate(new Date())} aria-label="Reset to now">
+                    <RefreshCw size={16} />
+                  </Button>
+                </>
+              )}
+            </>
+          }
+        >
+          {edit ? (
+            <Input
+              className="text-base text-teal-400"
+              value={inputDate}
+              onChange={(e) => setInputDate(e.target.value)}
+              placeholder="2024-01-01T00:00:00Z"
+            />
+          ) : (
+            <p className="font-mono text-lg break-words">{formattedDate}</p>
+          )}
+        </ToolPanel>
+      </ToolLayout>
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputDate(e.target.value);
-    }
-
-    const applyDate = () => {
-        console.log('input', inputDate);
-        const newDate = new Date(inputDate);
-        console.log('new date', newDate);
-        if (newDate.toString() === 'Invalid Date') {
-            toast({
-                title: 'Error',
-                description: 'Invalid Date',
-            });
-        } else {
-            setDate(newDate);
-            toggleEdit();
-        }
-    }
-
-    return (
-        <>
-            <PanelWrapper>
-                <Panel>
-                    <Card style={{ height: '100%' }}>
-                        <CardHeader>
-                            <CardTitle className='flex flex-row gap-2'>
-                                Input Date
-                            </CardTitle>
-                        </CardHeader>
-                        {edit ? (
-                            <CardContent key='edit-view' className='flex flex-row gap-2'>
-                                <Input className='text-base text-teal-400' defaultValue={formattedDate} onChange={handleChange} />
-                                <Button key='check' variant="outline" size="icon" onClick={applyDate}>
-                                    <Check size={14} />
-                                </Button>
-
-                                <Button key='close' variant="outline" size="icon" onClick={toggleEdit}>
-                                    <X size={14} />
-                                </Button>
-                            </CardContent>
-                        ) : (
-                            <CardContent key='read-view' className='flex flex-row gap-2'>
-                                <Label className='text-xl' >{formattedDate}</Label>
-                                <Button key='edit' variant="outline" size="icon" onClick={toggleEdit}>
-                                    <Pencil size={16} />
-                                </Button>
-                                <Button key='reset' variant="outline" size="icon" onClick={refreshDate}>
-                                    <RefreshCw size={18} />
-                                </Button>
-                            </CardContent>
-                        )
-                        }
-                    </Card>
-                </Panel>
-            </PanelWrapper>
-            <PanelWrapper>
-                <Panel key='tz-1'>
-                    <ZoneBlock date={date} zoneAtom={zoneAtomA} />
-                </Panel>
-                <Panel key='tz-2'>
-                    <ZoneBlock date={date} zoneAtom={zoneAtomB} />
-                </Panel>
-                <Panel key='tz-3'>
-                    <ZoneBlock date={date} zoneAtom={zoneAtomC} />
-                </Panel>
-                <Panel key='tz-4'>
-                    <ZoneBlock date={date} zoneAtom={zoneAtomD} />
-                </Panel>
-            </PanelWrapper>
-        </>
-    )
-}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {ZONES.map(({ key, fallback }, i) => (
+          <ZoneBlock
+            key={key}
+            date={date}
+            zone={zones[i]}
+            onZoneChange={setters[i]}
+            fallback={fallback}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default Timezone;

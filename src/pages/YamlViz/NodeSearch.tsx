@@ -20,25 +20,24 @@ import {
 const NodeSearch = () => {
     const { nodeMap } = useGraphStore();
     const [open, setOpen] = useState(false)
-    const [suggestions, setSuggestions] = useState([]);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        if (searchQuery) {
-            const lowerCaseQuery = searchQuery.toLowerCase();
-
-            const filtered = Object.keys(nodeMap).filter((id) =>
-                id.toLowerCase().includes(lowerCaseQuery)
-            );
-
-            setSuggestions(filtered.slice(0, 10)); // Show max 10 suggestions
+        if (!searchQuery) {
+            setSuggestions([]);
+            return;
         }
+        const q = searchQuery.toLowerCase();
+        // Cap the result set: a large graph can have thousands of distinct
+        // labels, and rendering them all in the popover is what made this
+        // sluggish.
+        setSuggestions(Object.keys(nodeMap).filter((id) => id.toLowerCase().includes(q)).slice(0, 10));
     }, [searchQuery, nodeMap]);
 
 
     const handleSelect = (nodeKey: string) => {
         const nodeIds = nodeMap[nodeKey];
-        console.log('nodeIds', nodeIds);
 
         setSearchQuery(nodeKey);
         setSelectedNodes(new Set(nodeIds));

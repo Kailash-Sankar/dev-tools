@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import { memo, useMemo } from "react";
+
 import {
     Select,
     SelectContent,
@@ -6,16 +7,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { formatInTimeZone } from "date-fns-tz";
-import { useAtom } from "jotai";
-import type { Atom } from "jotai";
 
 // `Intl.supportedValuesOf` is ES2022+ and not yet in the bundled lib.dom types.
 const zoneList: string[] = (
@@ -24,26 +18,23 @@ const zoneList: string[] = (
 
 type ZoneBlockProps = {
     date: Date;
-    zoneAtom: Atom<string>;
+    zone: string;
+    onZoneChange: (zone: string) => void;
+    fallback: string;
 };
 
-const ZoneBlock = React.memo(({ date, zoneAtom }: ZoneBlockProps) => {
-    const [zone, setZone] = useAtom(zoneAtom);
-
-    const handleChange = (value: string) => {
-        setZone(value);
-    }
-
-    const formattedZonedDate = useMemo(() => {
-        return formatInTimeZone(date, zone, "yyyy-MM-dd HH:mm:ssXXX");
-    }, [date, zone]);
+const ZoneBlock = memo(({ date, zone, onZoneChange, fallback }: ZoneBlockProps) => {
+    const formattedZonedDate = useMemo(
+        () => formatInTimeZone(date, zone, "yyyy-MM-dd HH:mm:ssXXX"),
+        [date, zone]
+    );
 
     return (
-        <Card className="h-full">
-            <CardHeader>
-                <CardTitle>
-                    <Select onValueChange={handleChange} value={zone}>
-                        <SelectTrigger className="w-[180px]">
+        <Card className="flex min-w-0 flex-col overflow-hidden">
+            <CardHeader className="shrink-0 py-3">
+                <CardTitle className="text-sm">
+                    <Select onValueChange={onZoneChange} value={zone || fallback}>
+                        <SelectTrigger className="w-full" aria-label="Timezone">
                             <SelectValue placeholder="Select Timezone" />
                         </SelectTrigger>
                         <SelectContent>
@@ -54,8 +45,10 @@ const ZoneBlock = React.memo(({ date, zoneAtom }: ZoneBlockProps) => {
                     </Select>
                 </CardTitle>
             </CardHeader>
-            <CardContent>
-                <Label className='text-lime-500 text-base break-words'>{formattedZonedDate}</Label>
+            <CardContent className="min-h-0 flex-1 overflow-auto">
+                <Label className="text-lime-500 text-base break-words [overflow-wrap:anywhere]">
+                    {formattedZonedDate}
+                </Label>
             </CardContent>
         </Card>
     );
