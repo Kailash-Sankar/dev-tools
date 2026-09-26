@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FlexCol, FlexRow, Panel, PanelWrapper } from '@/layout/styled';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { FlexRow, Panel, PanelWrapper } from '@/layout/styled';
 import useGraph from './useGraph';
 import Info from './Info';
 import Actions from './Actions';

@@ -84,7 +84,7 @@ export const useTodos = (): UseTodosReturn => {
     const loadWithRetry = async () => {
       try {
         await loadTodos();
-      } catch (error) {
+      } catch {
         if (retryCount < maxRetries) {
           retryCount++;
           console.log(`useTodos: Retry attempt ${retryCount}/${maxRetries}`);

@@ -15,24 +15,31 @@ import {
 import { Label } from "@/components/ui/label"
 import { formatInTimeZone } from "date-fns-tz";
 import { useAtom } from "jotai";
+import type { Atom } from "jotai";
 
-const zoneList = (Intl as any).supportedValuesOf("timeZone");
+// `Intl.supportedValuesOf` is ES2022+ and not yet in the bundled lib.dom types.
+const zoneList: string[] = (
+  Intl as unknown as { supportedValuesOf(key: "timeZone"): string[] }
+).supportedValuesOf("timeZone");
 
-const ZoneBlock = React.memo(({ date, zoneAtom }:any) => {
-    const [zone, setZone]:any = useAtom(zoneAtom);
+type ZoneBlockProps = {
+    date: Date;
+    zoneAtom: Atom<string>;
+};
 
-    console.log('zone block', zone)
+const ZoneBlock = React.memo(({ date, zoneAtom }: ZoneBlockProps) => {
+    const [zone, setZone] = useAtom(zoneAtom);
 
-    const handleChange = (value:any) => {
-        console.log(value);
+    const handleChange = (value: string) => {
         setZone(value);
     }
+
     const formattedZonedDate = useMemo(() => {
         return formatInTimeZone(date, zone, "yyyy-MM-dd HH:mm:ssXXX");
     }, [date, zone]);
 
     return (
-        <Card style={{ height: '100%' }}>
+        <Card className="h-full">
             <CardHeader>
                 <CardTitle>
                     <Select onValueChange={handleChange} value={zone}>
@@ -40,18 +47,20 @@ const ZoneBlock = React.memo(({ date, zoneAtom }:any) => {
                             <SelectValue placeholder="Select Timezone" />
                         </SelectTrigger>
                         <SelectContent>
-                            {zoneList.map( (zone:any) => (
-                                <SelectItem key={zone} value={zone}>{zone}</SelectItem>
+                            {zoneList.map((zoneName) => (
+                                <SelectItem key={zoneName} value={zoneName}>{zoneName}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Label className='text-lime-500 text-base'>{formattedZonedDate}</Label>
+                <Label className='text-lime-500 text-base break-words'>{formattedZonedDate}</Label>
             </CardContent>
         </Card>
     );
 });
+
+ZoneBlock.displayName = 'ZoneBlock';
 
 export default ZoneBlock;

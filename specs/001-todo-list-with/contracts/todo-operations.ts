@@ -102,7 +102,7 @@ export enum TodoErrorType {
 export interface TodoError {
   type: TodoErrorType;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 /**

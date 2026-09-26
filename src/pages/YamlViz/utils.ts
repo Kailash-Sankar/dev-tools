@@ -113,7 +113,7 @@ export const normalizeElkGraphCoordinates = (graph, elkGraph) => {
   const rangeX = maxX - minX;
   const rangeY = maxY - minY;
 
-  let scale = Math.max(rangeX, rangeY);
+  const scale = Math.max(rangeX, rangeY);
 
   let offsetX = 0;
   let offsetY = 0;

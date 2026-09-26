@@ -36,8 +36,8 @@ const ImageCompression = () => {
         setCompressedSize(0);
     };
 
-    const handleImageUpload = (e: any) => {
-        const file = e.target.files[0];
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (file) {
             resetCompressedImage();
             const fileNameWithoutExtension = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
@@ -47,8 +47,8 @@ const ImageCompression = () => {
             
             setOriginalSize(file.size);
             const reader = new FileReader();
-            reader.onload = (event: any) => {
-                setOriginalImage(event.target.result);
+            reader.onload = (event: ProgressEvent<FileReader>) => {
+                setOriginalImage(event.target?.result ?? null);
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
@@ -87,7 +87,8 @@ const ImageCompression = () => {
             sourceCanvas.width = img.width;
             sourceCanvas.height = img.height;
 
-            const ctx: any = sourceCanvas.getContext("2d");
+            const ctx = sourceCanvas.getContext("2d");
+            if (!ctx) throw new Error("Could not get 2D canvas context");
             ctx.drawImage(img, 0, 0);
 
             const newWidth = width > 0 ? width : img.width;
@@ -100,7 +101,7 @@ const ImageCompression = () => {
             await picaInstance.resize(sourceCanvas, targetCanvas);
             const blob = await picaInstance.toBlob(targetCanvas, format, quality);
 
-            const compressedImageUrl: any = URL.createObjectURL(blob);
+            const compressedImageUrl = URL.createObjectURL(blob);
             setCompressedImage(compressedImageUrl);
             setCompressedSize(blob.size);
         };

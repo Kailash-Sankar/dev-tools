@@ -1,5 +1,6 @@
 import { Panel, PanelWrapper } from '@/layout/styled';
 import { SketchPicker, CirclePicker, SwatchesPicker, SliderPicker, CompactPicker } from 'react-color'
+import type { ColorResult } from 'react-color'
 import {
     Card,
     CardContent,
@@ -10,7 +11,8 @@ import { atomWithStorage } from 'jotai/utils';
 import { atomKeys } from '@/utils/atomKeys';
 import { useAtom } from 'jotai';
 import { Separator } from '@/components/ui/separator';
-import ReactJson from 'react-json-view'
+import { JsonView, darkStyles } from 'react-json-view-lite'
+import 'react-json-view-lite/dist/index.css'
 
 const colorAtom = atomWithStorage(atomKeys.colorPicker, '#FFA500');
 
@@ -18,11 +20,11 @@ const colorAtom = atomWithStorage(atomKeys.colorPicker, '#FFA500');
 const Picker = () => {
     const [color, setColor] = useAtom(colorAtom);
 
-    const handleChange = (color: any) => {
-        setColor(color);
+    const handleChange = (next: ColorResult) => {
+        setColor(next);
     }
 
-    console.log('color', color);
+    const isColorResult = typeof color === 'object' && color !== null;
 
     return (
         <>
@@ -60,9 +62,13 @@ const Picker = () => {
                             <CardTitle>Output</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            { typeof color === 'object' ? (
-                                <ReactJson src={color} theme="monokai" />
-                            ) : '....'}
+                            {isColorResult ? (
+                                <JsonView data={color} style={darkStyles} />
+                            ) : (
+                                <pre className="overflow-auto whitespace-pre-wrap break-words [overflow-wrap:anywhere] font-mono text-sm">
+                                    {String(color)}
+                                </pre>
+                            )}
                         </CardContent>
                     </Card>
                 </Panel>

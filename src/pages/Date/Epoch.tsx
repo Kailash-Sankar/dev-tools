@@ -1,3 +1,4 @@
+import type React from "react"
 import { useMemo, useState } from 'react';
 import { Panel, PanelWrapper } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ const Epoch = () => {
         setEdit(v => !v);
     }
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputDate(e.target.value);
     }
 

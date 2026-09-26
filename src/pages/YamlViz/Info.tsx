@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { setFocusedNode, useGraphStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { useMemo } from "react";
-import { FlexCol, FlexRow } from "@/layout/styled";
+import { FlexRow } from "@/layout/styled";
 
 const Info = ({ getNodeInfo }) => {
     const { hoveredNode, selectedNodes, focusedNode } = useGraphStore();

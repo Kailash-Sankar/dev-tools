@@ -99,5 +99,5 @@ export const debugTodoStorage = {
 
 // Make debug utilities available globally in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).debugTodoStorage = debugTodoStorage;
+  (window as unknown as { debugTodoStorage: typeof debugTodoStorage }).debugTodoStorage = debugTodoStorage;
 }

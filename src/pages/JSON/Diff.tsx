@@ -1,8 +1,10 @@
+import type React from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator"
 import { diffJson } from "diff";
+import type { Change } from "diff"
 
 import {
     Card,
@@ -26,16 +28,16 @@ const JSONDiff = () => {
 
     const [data, setData] = useAtom(dataAtom);
 
-    const handleChangeA = (e:any) => {
+    const handleChangeA = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setValueA(e.target.value);
     }
 
-    const handleChangeB = (e:any) => {
+    const handleChangeB = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setValueB(e.target.value);
     }
 
     const handleClick = () => {
-        const diffData:any = diffJson(valueA, valueB);
+        const diffData: Change[] = diffJson(valueA, valueB);
         setData(diffData);
     }
 
@@ -64,7 +66,7 @@ const JSONDiff = () => {
                     <CardContent>
                         {data.length > 0 ? (
                            <PreWrap>
-                                {data.map((part:any, index) => {
+                                {data.map((part: Change, index) => {
                                     const color = part.added
                                         ? "green"
                                         : part.removed

@@ -1,10 +1,13 @@
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper } from '@/layout/styled';
 import { Button } from "@/components/ui/button";
-import ReactJson from 'react-json-view'
+import { JsonView } from 'react-json-view-lite'
+import { darkStyles } from 'react-json-view-lite'
+import 'react-json-view-lite/dist/index.css'
 
 import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+import { useState } from 'react'
 
 import {
     Card,
@@ -23,13 +26,20 @@ const JSONPrettyPrint = () => {
     const [data, setData] = useAtom(dataAtom);
     const [value, setValue] = useAtom(valueAtom);
 
-    const handleChange = (e:any) => {
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setValue(e.target.value);
+        setError(null);
     }
 
     const handleClick = () => {
-       const parsedData = JSON.parse(value);
-        setData(parsedData);
+        try {
+            setData(JSON.parse(value));
+            setError(null);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Invalid JSON');
+        }
     }
 
 
@@ -41,12 +51,19 @@ const JSONPrettyPrint = () => {
                         <CardTitle>Input</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Textarea 
-                            rows={25} 
-                            placeholder="Paste JSON here" 
-                            onChange={handleChange} 
-                            defaultValue={value} 
+                        <Textarea
+                            rows={25}
+                            placeholder="Paste JSON here"
+                            onChange={handleChange}
+                            value={value}
+                            spellCheck={false}
+                            className="font-mono"
                         />
+                        {error && (
+                            <p role="alert" className="mt-2 text-sm text-destructive break-words">
+                                {error}
+                            </p>
+                        )}
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleClick}>Format</Button>
@@ -59,7 +76,7 @@ const JSONPrettyPrint = () => {
                         <CardTitle>Output</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ReactJson src={data} theme="monokai" />
+                        <JsonView data={data} style={darkStyles} />
                     </CardContent>
                 </Card>
             </Panel>

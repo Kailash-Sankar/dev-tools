@@ -1,3 +1,4 @@
+import type React from "react"
 import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
 import { Panel, PanelWrapper, PreWrap } from '@/layout/styled';
@@ -16,7 +17,7 @@ const URIEncode = () => {
     const [value, setValue] = useState('');
     const [data, setData] = useState('');
 
-    const handleChange = (e:any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setValue(e.target.value);
     }
 

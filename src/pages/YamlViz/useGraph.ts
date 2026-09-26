@@ -1,21 +1,21 @@
 import { DirectedGraph } from 'graphology';
-import Sigma from 'sigma';
+import type Sigma from 'sigma';
 import ELK from "elkjs/lib/elk.bundled.js";
-import { computeCameraRatio, getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
-import { useCallback, useEffect, useRef } from 'react';
-import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore } from './state';
+import type { ELKNode } from "elkjs";
+import { getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
+import { useEffect, useRef } from 'react';
+import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore, type NodeMap } from './state';
+import type { parseYaml } from './utils';
 
 const useGraph = () => {
-    const containerRef = useRef(null);
-    const graphRef: any = useRef(null);
-    const rendererRef: any = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const graphRef = useRef<DirectedGraph | null>(null);
+    const rendererRef = useRef<Sigma | null>(null);
 
     const { selectedNodes, focusedNode, hideBackgroundNodes, fullscreen } = useGraphStore();
 
 
-    const handleRender = ({ parsedYaml }) => {
-        console.log('parsedYaml', parsedYaml);
-
+    const handleRender = ({ parsedYaml }: { parsedYaml: ReturnType<typeof parseYaml> }) => {
         // cleanup previous instance
         if (rendererRef.current) {
             rendererRef.current.kill();
@@ -29,18 +29,16 @@ const useGraph = () => {
 
         const elkInput = yamlToElkGraph({ data: parsedYaml });
 
-        console.log('elkInput', elkInput);
-
-        const nodeMap: any = {};
+        const nodeMap: NodeMap = {};
 
         // Build ELK graph
-        elk.layout(elkInput).then((elkOutput: any) => {
+        elk.layout(elkInput).then((elkOutput) => {
             const graph = new DirectedGraph();
             graphRef.current = graph;
 
             // Add nodes with layout positions
-            elkOutput.children.forEach((node: any) => {
-                const label = node.labels[0].text;
+            elkOutput.children?.forEach((node: ELKNode) => {
+                const label = node.labels?.[0]?.text ?? node.id;
 
                 graph.addNode(node.id, {
                     label: node.labels[0].text,
