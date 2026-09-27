@@ -2,14 +2,28 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter } from "react-router";
+import { ThemeProvider } from "@/components/theme-provider";
+import { CommandPaletteProvider } from "@/components/command-palette-context";
 
+/**
+ * Providers live here, ABOVE <App>, not inside it.
+ *
+ * App calls useKeyboardShortcuts(), which reads both the theme and the command
+ * palette from context. If the providers were rendered inside App's JSX, the
+ * hooks would run during App's render -- before its own children mount -- and
+ * would receive the context *defaults* (a no-op setTheme/togglePalette) rather
+ * than the real values. That's a silent failure: the component tree looks
+ * correct and the shortcuts simply do nothing.
+ */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <CommandPaletteProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CommandPaletteProvider>
+    </ThemeProvider>
   </StrictMode>,
 )

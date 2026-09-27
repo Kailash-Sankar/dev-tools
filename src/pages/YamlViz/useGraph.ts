@@ -5,11 +5,16 @@ import Sigma from 'sigma';
 import type { GraphNode } from "./utils";
 import { layoutGraph } from './elk';
 import { getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
+import { graphPalette, useGraphTheme } from './graph-theme';
 import { useEffect, useRef } from 'react';
 import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore, type NodeMap } from './state';
 import type { parseYaml } from './utils';
 
 const useGraph = () => {
+    // Re-renders the graph when the app theme flips, so sigma repaints with
+    // the new palette rather than keeping the old theme's colours.
+    useGraphTheme();
+
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<DirectedGraph | null>(null);
     const rendererRef = useRef<Sigma | null>(null);
@@ -37,6 +42,7 @@ const useGraph = () => {
         clearState();
 
         const elkInput = yamlToElkGraph({ data: parsedYaml });
+        const palette = graphPalette();
         const nodeMap: NodeMap = {};
 
         // Yield to the event loop between batches so a large graph doesn't
@@ -67,7 +73,7 @@ const useGraph = () => {
                     x: node.x,
                     y: node.y,
                     size: 6,
-                    color: '#0074D9',
+                    color: palette.node,
                     value: node.value,
                 });
 
@@ -105,7 +111,7 @@ const useGraph = () => {
 
                     return {
                         ...data,
-                        color: isSelected ? '#9C27B0' : isHighlightedPath ? '#FF9800' : '#2196F3',
+                        color: isSelected ? palette.selected : isHighlightedPath ? palette.highlight : palette.node,
                         size: isSelected ? 10 : data.size || 5,
                         zIndex: isHighlightedPath ? 1 : 0,
                         hidden: hideBackgroundNodes && !isHighlightedPath,
@@ -122,11 +128,11 @@ const useGraph = () => {
                     const graphHasHighlight = highlightedPath.size > 0 || hoverPath.size > 0;
 
                     const defaultSize = graphHasHighlight ? 0.5 : data.size;
-                    const defaultColor = graphHasHighlight ? "#eee" : data.color;
+                    const defaultColor = graphHasHighlight ? palette.muted : data.color;
 
                     return {
                         ...data,
-                        color: isHighlighted ? "#FF5722" : defaultColor,
+                        color: isHighlighted ? palette.highlight : defaultColor,
                         size: isHighlighted ? 2 : defaultSize,
                     };
                 },

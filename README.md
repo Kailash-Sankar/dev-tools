@@ -57,6 +57,22 @@ There is no per-tool layout code. Build pages from the shared primitives in
 | `ToolOutput` | read-only output; **wraps and scrolls long content** |
 | `DiffOutput` | the three diff tools' shared renderer |
 
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| `⌘K` / `Ctrl-K` | command palette (tool search + actions) |
+| `T` | toggle light / dark |
+| `/` | focus the main input |
+| `G` then `H` | go home |
+| `1`, `2` | jump to numbered tools |
+| `?` | keyboard help |
+| `Esc` | close / blur |
+
+Single-key shortcuts are ignored while typing in a field -- these tools are
+mostly one big textarea, so hijacking `t` would break normal input. `⌘K`
+works from anywhere, including inside an input.
+
 ```tsx
 <ToolLayout>
   <ToolPanel title="Input" actions={<Button onClick={run}>Run</Button>}>
@@ -92,6 +108,24 @@ keystroke, which stutters on large inputs.
 
 Not covered by tests, and verified manually in headless Chrome instead:
 WebGL/canvas rendering, file pickers, clipboard, and layout/wrapping.
+
+## Design system
+
+Colours live in `src/index.css` as OKLCH variables behind semantic names
+(`--c-surface`, `--c-accent`, `--c-add`, ...), exposed to Tailwind via
+`@theme inline`. Components use `bg-surface` / `text-fg-muted` /
+`text-accent-strong` and never a raw colour, so both themes come from one
+definition.
+
+Things worth knowing if you add UI:
+
+- The theme class is applied to `<html>` by a pre-paint script in `index.html`
+  (and again by React). `src/theme-init.test.ts` keeps the two in sync.
+- sigma draws to WebGL and can't read CSS variables, so YamlViz resolves its
+  own palette per theme in `graph-theme.ts` and repaints on theme change.
+- Providers (`ThemeProvider`, `CommandPaletteProvider`) are mounted in
+  `main.tsx`, *above* `App`. Anything in App that reads their context must be
+  a descendant of them.
 
 ## Stack
 

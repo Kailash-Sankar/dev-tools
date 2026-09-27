@@ -46,7 +46,7 @@ const ZoneBlock = memo(({ date, zone, onZoneChange, fallback }: ZoneBlockProps) 
                 </CardTitle>
             </CardHeader>
             <CardContent className="min-h-0 flex-1 overflow-auto">
-                <Label className="text-lime-500 text-base break-words [overflow-wrap:anywhere]">
+                <Label className="text-accent-strong text-base break-words [overflow-wrap:anywhere]">
                     {formattedZonedDate}
                 </Label>
             </CardContent>

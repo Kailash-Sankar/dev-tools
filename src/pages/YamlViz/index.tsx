@@ -38,7 +38,7 @@ const DagViz = () => {
       {/* min-h-0 is what lets the graph shrink instead of overflowing its row. */}
       <div
         className={
-          "relative min-h-0 flex-1 overflow-hidden rounded-md border bg-snow " +
+          "bg-surface-2 relative min-h-0 flex-1 overflow-hidden rounded-md border " +
           (fullscreen ? "fixed inset-0 z-99 rounded-none" : "")
         }
       >

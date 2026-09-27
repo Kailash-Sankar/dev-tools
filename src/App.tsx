@@ -3,10 +3,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { Suspense, lazy } from "react";
 
 import Home from './pages/Home'
-import { ThemeProvider } from "@/components/theme-provider"
 import ToolBar from './layout/ToolBar'
-import { ContentWrapper } from './layout/ContentWrapper'
 import { SkeletonCard } from './components/CardLoader';
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { KeyboardHelp } from "@/components/keyboard-help";
 
 const JSONDiff = lazy(() => import('./pages/JSON/Diff'))
 const JSONPrettyPrint = lazy(() => import('./pages/JSON/PrettyPrint'))
@@ -23,36 +23,35 @@ const ImageCompressor = lazy(() => import('./pages/Image/Compressor'));
 const YamlViz = lazy(() => import('./pages/YamlViz'));
 const TodoList = lazy(() => import('./pages/Productivity/TodoList'));
 
+// Providers (theme, command palette) are mounted in main.tsx, above this
+// component, so the shortcuts below can actually read them.
 function App() {
+  useKeyboardShortcuts();
+
   return (
-    <div>
-      <ThemeProvider>
-        <ToolBar>
-          <ContentWrapper>
-            <Suspense fallback={<SkeletonCard />}>
-              <Routes>
-                <Route index element={<Home />} />
-                <Route path="/json-diff" element={<JSONDiff />} />
-                <Route path="/json-pp" element={<JSONPrettyPrint />} />
-                <Route path="/b64-encode" element={<Base64Encode />} />
-                <Route path="/b64-decode" element={<Base64Decode />} />
-                <Route path="/uri-encode" element={<URIEncode />} />
-                <Route path="/uri-decode" element={<URIDecode />} />
-                <Route path="/txt-diff-line" element={<TextLineDiff />} />
-                <Route path="/txt-diff-char" element={<TextCharDiff />} />
-                <Route path="/date-tz" element={<DateTimezone />} />
-                <Route path="/date-epoch" element={<DateEpoch />} />
-                <Route path="/color-picker" element={<ColorPicker />} />
-                <Route path="/img-compressor" element={<ImageCompressor />} />
-                <Route path="/yaml-viz" element={<YamlViz/>} />
-                <Route path="/todo-list" element={<TodoList/>} />
-              </Routes>
-            </Suspense>
-          </ContentWrapper>
-          <Toaster />
-        </ToolBar>
-      </ThemeProvider>
-    </div>
+    <ToolBar>
+      <Suspense fallback={<SkeletonCard />}>
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/json-diff" element={<JSONDiff />} />
+          <Route path="/json-pp" element={<JSONPrettyPrint />} />
+          <Route path="/b64-encode" element={<Base64Encode />} />
+          <Route path="/b64-decode" element={<Base64Decode />} />
+          <Route path="/uri-encode" element={<URIEncode />} />
+          <Route path="/uri-decode" element={<URIDecode />} />
+          <Route path="/txt-diff-line" element={<TextLineDiff />} />
+          <Route path="/txt-diff-char" element={<TextCharDiff />} />
+          <Route path="/date-tz" element={<DateTimezone />} />
+          <Route path="/date-epoch" element={<DateEpoch />} />
+          <Route path="/color-picker" element={<ColorPicker />} />
+          <Route path="/img-compressor" element={<ImageCompressor />} />
+          <Route path="/yaml-viz" element={<YamlViz />} />
+          <Route path="/todo-list" element={<TodoList />} />
+        </Routes>
+      </Suspense>
+      <Toaster />
+      <KeyboardHelp />
+    </ToolBar>
   )
 }
 

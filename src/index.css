@@ -3,54 +3,238 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ------------------------------------------------------------------ *
+ * Type
+ * ------------------------------------------------------------------ */
 :root {
-  font-family: monospace;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
 }
 
+/* ------------------------------------------------------------------ *
+ * Palette
+ *
+ * OKLCH rather than the HSL triplets the old theme used: perceptually
+ * uniform, so a 500-weight step actually looks ~equally "loud" in both
+ * themes, and the whole thing is defined once instead of being two
+ * hand-tuned HSL blocks that drift apart.
+ *
+ * Everything downstream uses semantic tokens (--color-surface, --color-accent,
+ * ...) so no component hard-codes a colour and both themes just work.
+ * ------------------------------------------------------------------ */
+
+:root {
+  /* Neutrals -- very slightly cool, reads as "instrument panel" not "paper" */
+  --c-bg: oklch(0.985 0.002 250);
+  --c-surface: oklch(1 0 0);
+  --c-surface-2: oklch(0.968 0.003 250);
+  --c-surface-3: oklch(0.945 0.004 250);
+  --c-border: oklch(0.9 0.006 250);
+  --c-border-strong: oklch(0.84 0.008 250);
+  --c-fg: oklch(0.22 0.015 260);
+  --c-fg-muted: oklch(0.52 0.012 260);
+  --c-fg-subtle: oklch(0.66 0.01 260);
+
+  /* Accent: a restrained terminal teal. Used sparingly -- selection, focus,
+     active nav. Never as a large fill. */
+  --c-accent: oklch(0.55 0.115 195);
+  --c-accent-fg: oklch(0.99 0.005 195);
+  --c-accent-soft: oklch(0.94 0.03 195);
+  --c-accent-border: oklch(0.85 0.06 195);
+
+  /* Semantic: diff output, statuses */
+  --c-add: oklch(0.58 0.13 150);
+  --c-add-soft: oklch(0.94 0.05 150);
+  --c-del: oklch(0.58 0.16 25);
+  --c-del-soft: oklch(0.95 0.04 25);
+  --c-warn: oklch(0.7 0.14 70);
+
+  --radius: 0.5rem;
+  --shadow-panel: 0 1px 2px oklch(0.22 0.015 260 / 0.04);
+  --shadow-pop: 0 8px 24px -6px oklch(0.22 0.015 260 / 0.12);
+}
+
+.dark {
+  --c-bg: oklch(0.165 0.012 265);
+  --c-surface: oklch(0.205 0.013 265);
+  --c-surface-2: oklch(0.235 0.014 265);
+  --c-surface-3: oklch(0.275 0.015 265);
+  --c-border: oklch(0.31 0.015 265);
+  --c-border-strong: oklch(0.4 0.017 265);
+  --c-fg: oklch(0.93 0.008 265);
+  --c-fg-muted: oklch(0.68 0.012 265);
+  --c-fg-subtle: oklch(0.55 0.012 265);
+
+  --c-accent: oklch(0.78 0.12 190);
+  --c-accent-fg: oklch(0.18 0.02 195);
+  --c-accent-soft: oklch(0.3 0.05 195);
+  --c-accent-border: oklch(0.42 0.07 195);
+
+  --c-add: oklch(0.76 0.14 155);
+  --c-add-soft: oklch(0.3 0.06 155);
+  --c-del: oklch(0.7 0.15 22);
+  --c-del-soft: oklch(0.3 0.07 22);
+  --c-warn: oklch(0.8 0.13 75);
+
+  --shadow-panel: 0 1px 2px oklch(0 0 0 / 0.3);
+  --shadow-pop: 0 12px 32px -8px oklch(0 0 0 / 0.55);
+}
+
+/* Expose the palette as Tailwind utilities (bg-surface, text-accent, ...).
+   `inline` so utilities resolve to hsl()/oklch() directly and the runtime
+   .dark class can still override the underlying variable. */
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-  --color-sidebar: hsl(var(--sidebar-background));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-background: var(--c-bg);
+  --color-foreground: var(--c-fg);
+  --color-card: var(--c-surface);
+  --color-card-foreground: var(--c-fg);
+  --color-popover: var(--c-surface);
+  --color-popover-foreground: var(--c-fg);
+  --color-primary: var(--c-fg);
+  --color-primary-foreground: var(--c-bg);
+  --color-secondary: var(--c-surface-2);
+  --color-secondary-foreground: var(--c-fg);
+  --color-muted: var(--c-surface-2);
+  --color-muted-foreground: var(--c-fg-muted);
+  --color-accent: var(--c-accent-soft);
+  --color-accent-foreground: var(--c-fg);
+  --color-destructive: var(--c-del);
+  --color-destructive-foreground: var(--c-accent-fg);
+  --color-border: var(--c-border);
+  --color-input: var(--c-border);
+  --color-ring: var(--c-accent);
+  --color-sidebar: var(--c-surface);
+  --color-sidebar-foreground: var(--c-fg);
+  --color-sidebar-primary: var(--c-accent);
+  --color-sidebar-primary-foreground: var(--c-accent-fg);
+  --color-sidebar-accent: var(--c-surface-2);
+  --color-sidebar-accent-foreground: var(--c-fg);
+  --color-sidebar-border: var(--c-border);
+  --color-sidebar-ring: var(--c-accent);
+
+  /* Palette-exposed helpers used by the app shell and diff views. */
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-fg-muted: var(--c-fg-muted);
+  --color-fg-subtle: var(--c-fg-subtle);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-accent-border: var(--c-accent-border);
+  --color-accent-strong: var(--c-accent);
+  --color-add: var(--c-add);
+  --color-add-soft: var(--c-add-soft);
+  --color-del: var(--c-del);
+  --color-del-soft: var(--c-del-soft);
+  --color-warn: var(--c-warn);
+  --color-border-strong: var(--c-border-strong);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--c-border);
+  }
+
+  html {
+    /* Let the browser paint form controls/scrollbars for the active theme,
+       and avoid a light-mode flash before the theme class is applied. */
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--c-bg);
+    color: var(--c-fg);
+    font-family: var(--font-sans);
+    margin: 0;
+    min-width: 320px;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Monospace by default: this is a developer tool, and it makes hex/JSON/
+     base64 output line up predictably. Opt out per-component. */
+  code,
+  kbd,
+  pre,
+  samp,
+  textarea {
+    font-family: var(--font-mono);
+  }
+
+  /* Long unbroken tokens (base64, minified JSON, URLs) must not widen their
+     container. `pre-wrap` alone only breaks at whitespace that already
+     exists, so a single 16 kB base64 string would overflow. */
+  pre,
+  code,
+  textarea {
+    overflow-wrap: anywhere;
+  }
+  textarea {
+    white-space: pre-wrap;
+  }
+
+  /* Visible, consistent focus for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--c-accent-soft);
+    color: var(--c-fg);
+  }
+
+  /* Slim scrollbars that follow the theme. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-border-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--c-border-strong);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--c-fg-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 /* Home page wordmark. Each glyph keeps its original distinct timing.
@@ -99,115 +283,4 @@
 @keyframes key-8 {
   35%, 45%, 100% { transform: translateY(0); }
   40% { transform: translateY(10px); }
-}
-
-@layer components {
-  .key {
-    display: inline-block;
-    font-size: 15vw;
-    font-weight: 600;
-    letter-spacing: -1vw;
-    transition: transform 0.2s;
-  }
-}
-
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
-  --radius: 0.5rem;
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
-}
-
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
-  --sidebar-background: 240 5.9% 10%;
-  --sidebar-foreground: 240 4.8% 95.9%;
-  --sidebar-primary: 224.3 76.3% 48%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 3.7% 15.9%;
-  --sidebar-accent-foreground: 240 4.8% 95.9%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  /* The only rule that survived from the old App.css (Vite scaffold --
-     .logo / .card / .read-the-docs were never used and are gone). */
-  #root {
-    width: 100%;
-    height: 100%;
-  }
-  body {
-    @apply bg-background text-foreground;
-    margin: 0;
-    min-width: 320px;
-    min-height: 100vh;
-  }
-
-  /* Long unbroken strings (base64, minified JSON, long URLs) must not
-     widen their container. These two properties together are what actually
-     force a break inside an otherwise unbreakable token. */
-  pre,
-  code,
-  textarea {
-    overflow-wrap: anywhere;
-  }
-  textarea {
-    white-space: pre-wrap;
-  }
 }

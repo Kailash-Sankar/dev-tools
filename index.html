@@ -2,9 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dev Tools</title>
+    <meta name="description" content="A small, fast collection of developer tools. Runs entirely in your browser." />
+
+    <!--
+      Applies the stored/system theme before first paint. Without this the page
+      paints light and flips once React mounts, which white-flashes for
+      dark-mode users. Keep this inline and synchronous.
+    -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem("vite-ui-theme") || "system";
+          var d =
+            s === "dark" ||
+            (s === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.add(d ? "dark" : "light");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -61,7 +61,7 @@ const Info = ({ getNodeInfo }: InfoProps) => {
                             }}
                             className={cn(
                                 "cursor-pointer break-all",
-                                focusedNode === node && "border-lime-500 text-lime-500"
+                                focusedNode === node && "border-accent-strong text-accent-strong"
                             )}
                         >
                             {node}

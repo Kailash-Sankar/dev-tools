@@ -227,7 +227,7 @@ const ImageCompression = () => {
                         <p
                             className={cn(
                                 "font-mono text-sm",
-                                saved > 0 ? "text-green-500" : "text-red-500"
+                                saved > 0 ? "text-add" : "text-del"
                             )}
                         >
                             {saved > 0 ? "Saved" : "Grew by"} {Math.abs(savedPct).toFixed(2)}% (

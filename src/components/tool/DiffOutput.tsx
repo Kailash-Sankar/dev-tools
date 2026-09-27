@@ -32,9 +32,9 @@ export function DiffOutput({
         <span
           key={index}
           className={cn(
-            part.added && "bg-green-500/20 text-green-400",
-            part.removed && "bg-red-500/20 text-red-400",
-            showStrikethrough && part.removed && "line-through"
+            part.added && "bg-add-soft text-add",
+            part.removed && "bg-del-soft text-del",
+            showStrikethrough && part.removed && "line-through decoration-del/60"
           )}
         >
           {part.value}

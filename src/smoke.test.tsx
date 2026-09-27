@@ -29,6 +29,8 @@ import { MemoryRouter, Route, Routes } from "react-router";
 
 import App from "@/App";
 import { toolList } from "@/layout/toolConfig";
+import { ThemeProvider } from "@/components/theme-provider";
+import { CommandPaletteProvider } from "@/components/command-palette-context";
 
 // jsdom has no WebGL. These are only constructed on user action, but the
 // modules are imported eagerly by their routes.
@@ -83,13 +85,18 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+/** Mirrors the provider nesting in main.tsx. */
 function renderAt(path: string) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </MemoryRouter>
+    <ThemeProvider>
+      <CommandPaletteProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/*" element={<App />} />
+          </Routes>
+        </MemoryRouter>
+      </CommandPaletteProvider>
+    </ThemeProvider>
   );
 }
 
