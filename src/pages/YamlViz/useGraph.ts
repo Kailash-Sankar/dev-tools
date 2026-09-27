@@ -6,7 +6,7 @@ import type { GraphNode } from "./utils";
 import { layoutGraph } from './elk';
 import { getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
 import { graphPalette, useGraphTheme } from './graph-theme';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { clearState, setFocusedNode, setHighlightedPath, setHoveredNode, setHoverPath, setNodeMap, setSelectedNodes, useGraphStore, type NodeMap } from './state';
 import type { parseYaml } from './utils';
 
@@ -171,7 +171,6 @@ const useGraph = () => {
             // type map (which only covers reducers/edge/label/... groups).
             (renderer as unknown as { setSetting(k: string, v: unknown): void }).setSetting('zoomMin', 0.1);
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error("YAML layout failed", err);
         }
     }
@@ -208,7 +207,7 @@ const useGraph = () => {
         );
     }
 
-    const resetCamera = () => {
+    const resetCamera = useCallback(() => {
         const camera = rendererRef.current?.getCamera();
         camera.animate(
             {
@@ -219,7 +218,7 @@ const useGraph = () => {
             { duration: 600 }
         );
         setFocusedNode(null);
-    };
+    }, []);
 
     const getNodeInfo = (node) => {
         if (node) {
@@ -227,12 +226,12 @@ const useGraph = () => {
         }
     }
 
-    const forceRefresh = () => {
+    const forceRefresh = useCallback(() => {
         if (rendererRef.current) {
             rendererRef.current.refresh();
             resetCamera();
         }
-    }
+    }, [resetCamera]);
 
 
     useEffect(() => {
@@ -252,10 +251,10 @@ const useGraph = () => {
         }
     }, [focusedNode]);
 
-    // trigger refresh on state change
+    // Re-render the graph when a display toggle changes.
     useEffect(() => {
         forceRefresh();
-    }, [hideBackgroundNodes, fullscreen]);
+    }, [hideBackgroundNodes, fullscreen, forceRefresh]);
 
 
     return { containerRef, handleRender, handleSearch, resetCamera, focusCameraOnNode, getNodeInfo, forceRefresh };
