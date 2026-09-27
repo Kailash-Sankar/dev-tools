@@ -25,7 +25,14 @@ const TodoList = lazy(() => import('./pages/Productivity/TodoList'))
 const Hash = lazy(() => import('./pages/Text/Hash'))
 const Cron = lazy(() => import('./pages/Dev/Cron'))
 const JwtDecoder = lazy(() => import('./pages/Dev/Jwt'))
-const Semver = lazy(() => import('./pages/Dev/Semver'));
+const Semver = lazy(() => import('./pages/Dev/Semver'))
+const BaseConverter = lazy(() => import('./pages/Dev/BaseConverter'))
+const IdGenerator = lazy(() => import('./pages/Dev/IdGenerator'))
+const ChmodCalc = lazy(() => import('./pages/Dev/ChmodCalc'))
+const CaseConverter = lazy(() => import('./pages/Text/CaseConverter'))
+const RegexTester = lazy(() => import('./pages/Text/RegexTester'))
+const Toml = lazy(() => import('./pages/Text/Toml'))
+const MimeLookup = lazy(() => import('./pages/Text/MimeLookup'));
 
 // Providers (theme, command palette) are mounted in main.tsx, above this
 // component, so the shortcuts below can actually read them.
@@ -55,6 +62,13 @@ function App() {
           <Route path="/cron" element={<Cron />} />
           <Route path="/jwt" element={<JwtDecoder />} />
           <Route path="/semver" element={<Semver />} />
+          <Route path="/base-converter" element={<BaseConverter />} />
+          <Route path="/id-generator" element={<IdGenerator />} />
+          <Route path="/chmod" element={<ChmodCalc />} />
+          <Route path="/case-converter" element={<CaseConverter />} />
+          <Route path="/regex-tester" element={<RegexTester />} />
+          <Route path="/toml" element={<Toml />} />
+          <Route path="/mime" element={<MimeLookup />} />
         </Routes>
       </Suspense>
       <Toaster />

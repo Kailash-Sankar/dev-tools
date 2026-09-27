@@ -71,6 +71,13 @@ const EXPECTED: Record<string, Marker> = {
   "/cron":            { kind: "placeholder", match: /0 9 \* \* 1-5/i },
   "/jwt":             { kind: "placeholder", match: /Paste a JWT/i },
   "/semver":          { kind: "placeholder", match: /1\.2\.3/i },
+  "/case-converter":  { kind: "placeholder", match: /user first name/i },
+  "/regex-tester":    { kind: "text", match: /Matches \(0\)|Matches \(/ },
+  "/toml":            { kind: "text", match: /pyproject\.toml|pyproject/i },
+  "/mime":            { kind: "placeholder", match: /webp/i },
+  "/base-converter":  { kind: "placeholder", match: /255/i },
+  "/id-generator":    { kind: "text", match: /UUID v4/i },
+  "/chmod":           { kind: "text", match: /Special bits/i },
 };
 
 // `timeout` is a waitFor option, so it goes in the third argument rather than
