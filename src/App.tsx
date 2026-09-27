@@ -21,7 +21,11 @@ const DateEpoch = lazy(() => import('./pages/Date/Epoch'));
 const ColorPicker = lazy(() => import('./pages/Colors/Picker'));
 const ImageCompressor = lazy(() => import('./pages/Image/Compressor'));
 const YamlViz = lazy(() => import('./pages/YamlViz'));
-const TodoList = lazy(() => import('./pages/Productivity/TodoList'));
+const TodoList = lazy(() => import('./pages/Productivity/TodoList'))
+const Hash = lazy(() => import('./pages/Text/Hash'))
+const Cron = lazy(() => import('./pages/Dev/Cron'))
+const JwtDecoder = lazy(() => import('./pages/Dev/Jwt'))
+const Semver = lazy(() => import('./pages/Dev/Semver'));
 
 // Providers (theme, command palette) are mounted in main.tsx, above this
 // component, so the shortcuts below can actually read them.
@@ -47,6 +51,10 @@ function App() {
           <Route path="/img-compressor" element={<ImageCompressor />} />
           <Route path="/yaml-viz" element={<YamlViz />} />
           <Route path="/todo-list" element={<TodoList />} />
+          <Route path="/hash" element={<Hash />} />
+          <Route path="/cron" element={<Cron />} />
+          <Route path="/jwt" element={<JwtDecoder />} />
+          <Route path="/semver" element={<Semver />} />
         </Routes>
       </Suspense>
       <Toaster />

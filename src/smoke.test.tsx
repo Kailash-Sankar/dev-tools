@@ -67,6 +67,10 @@ const EXPECTED: Record<string, Marker> = {
   "/img-compressor":  { kind: "text", match: /Upload image/i },
   "/yaml-viz":        { kind: "text", match: /Render Mock/i },
   "/todo-list":       { kind: "text", match: /Todo List/i },
+  "/hash":            { kind: "placeholder", match: /Paste the text to hash/i },
+  "/cron":            { kind: "placeholder", match: /0 9 \* \* 1-5/i },
+  "/jwt":             { kind: "placeholder", match: /Paste a JWT/i },
+  "/semver":          { kind: "placeholder", match: /1\.2\.3/i },
 };
 
 // `timeout` is a waitFor option, so it goes in the third argument rather than

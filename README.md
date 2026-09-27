@@ -10,11 +10,15 @@ persisted to `localStorage` (and IndexedDB for the todo list).
 | --- | --- | --- |
 | JSON Format | `/json-pp` | Parse + collapsible viewer |
 | JSON Diff | `/json-diff` | Structural diff of two JSON documents |
+| Hash | `/hash` | SHA-1/256/384/512 via WebCrypto, no dependency |
 | Base64 Encode / Decode | `/b64-encode`, `/b64-decode` | UTF-8 safe (emoji/CJK round-trip) |
 | URI Encode / Decode | `/uri-encode`, `/uri-decode` | Lenient decode for malformed `%` sequences |
 | Text Diff: Lines / Chars | `/txt-diff-line`, `/txt-diff-char` | |
 | Date TZ | `/date-tz` | Compare an instant across four zones |
 | Date Epoch | `/date-epoch` | Epoch ↔ human-readable |
+| Cron Explainer | `/cron` | Plain-English description + next 5 run times |
+| JWT Decoder | `/jwt` | Header/claims only — **decoding is not verification** |
+| Semver Compare | `/semver` | Compare, range-check and bump two versions |
 | Color Picker | `/color-picker` | hex / rgb / hsl |
 | Image Compressor | `/img-compressor` | Resize + re-encode via pica |
 | Yaml Viz | `/yaml-viz` | Force-free ELK layout rendered with sigma |
