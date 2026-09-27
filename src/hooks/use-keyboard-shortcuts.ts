@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { useCommandPalette } from "@/components/command-palette-context";
 import { useHelpDialog } from "@/components/help-dialog-context";
 import { useTheme } from "@/components/theme-provider";
-import { toolList } from "@/layout/toolConfig";
 import { isModKey } from "@/utils/platform";
 
 /**
@@ -120,14 +119,9 @@ export function useKeyboardShortcuts() {
         return;
       }
 
-      // Number keys jump to tools that declared a shortcut.
-      if (/^[1-9]$/.test(e.key)) {
-        const tool = toolList.find((t) => t.shortcut === e.key);
-        if (tool) {
-          e.preventDefault();
-          act(() => navigate(tool.url));
-        }
-      }
+      // Number keys are deliberately not bound. With the command palette
+      // open, digits filter the query instead — that is faster than
+      // memorising an arbitrary digit per tool.
     };
 
     window.addEventListener("keydown", onKeyDown);

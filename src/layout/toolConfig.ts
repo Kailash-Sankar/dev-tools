@@ -5,8 +5,6 @@ export type Tool = {
   group?: ToolGroup;
   /** Extra words the command palette matches on (e.g. "b64" -> base64). */
   keywords?: string[];
-  /** Single-character shortcut, shown in the palette. Avoid conflicts. */
-  shortcut?: string;
 };
 
 export type ToolGroup = "Text" | "Encoding" | "Dev" | "Convert" | "Other";
@@ -17,14 +15,14 @@ export type ToolGroup = "Text" | "Encoding" | "Dev" | "Convert" | "Other";
  * smoke test fails if a tool is added here without a marker.
  */
 export const toolList: Tool[] = [
-  { title: "JSON Format",  url: "/json-pp",     group: "Text",     keywords: ["beautify", "pretty", "parse"], shortcut: "1" },
+  { title: "JSON Format",  url: "/json-pp",     group: "Text",     keywords: ["beautify", "pretty", "parse"] },
   { title: "JSON Diff",    url: "/json-diff",   group: "Text",     keywords: ["compare", "delta"] },
-  { title: "Hash",         url: "/hash",        group: "Text",     keywords: ["sha256", "sha1", "sha512", "digest", "checksum", "crypto"], shortcut: "3" },
+  { title: "Hash",         url: "/hash",        group: "Text",     keywords: ["sha256", "sha1", "sha512", "digest", "checksum", "crypto"] },
   { title: "Case Converter", url: "/case-converter", group: "Text", keywords: ["camel", "snake", "kebab", "pascal", "constant", "rename"] },
   { title: "Regex Tester",  url: "/regex-tester", group: "Text",     keywords: ["regexp", "pattern", "match", "grep"] },
   { title: "TOML",         url: "/toml",        group: "Text",     keywords: ["pyproject", "cargo", "convert", "json"] },
   { title: "MIME Lookup",   url: "/mime",        group: "Text",     keywords: ["content type", "extension", "http", "header"] },
-  { title: "Base64 Encode", url: "/b64-encode", group: "Encoding", keywords: ["b64", "encode"], shortcut: "2" },
+  { title: "Base64 Encode", url: "/b64-encode", group: "Encoding", keywords: ["b64", "encode"] },
   { title: "Base64 Decode", url: "/b64-decode", group: "Encoding", keywords: ["b64", "decode"] },
   { title: "URI Encode",   url: "/uri-encode",  group: "Encoding", keywords: ["url", "percent", "escape"] },
   { title: "URI Decode",   url: "/uri-decode",  group: "Encoding", keywords: ["url", "percent", "unescape"] },
@@ -32,10 +30,10 @@ export const toolList: Tool[] = [
   { title: "Text Diff: Chars", url: "/txt-diff-char", group: "Text", keywords: ["compare", "character"] },
   { title: "Date TZ",      url: "/date-tz",     group: "Dev",      keywords: ["timezone", "time", "zone"] },
   { title: "Date Epoch",   url: "/date-epoch",  group: "Dev",      keywords: ["timestamp", "unix", "time"] },
-  { title: "Cron Explainer", url: "/cron",       group: "Dev",      keywords: ["schedule", "crontab", "quartz", "next run", "job"], shortcut: "4" },
-  { title: "JWT Decoder",  url: "/jwt",         group: "Dev",      keywords: ["token", "bearer", "claims", "auth", "oauth"], shortcut: "5" },
-  { title: "Semver Compare", url: "/semver",     group: "Dev",      keywords: ["version", "bump", "range", "caret", "tilde", "release"], shortcut: "6" },
-  { title: "Base Converter", url: "/base-converter", group: "Dev",   keywords: ["hex", "binary", "octal", "radix", "bigint"], shortcut: "7" },
+  { title: "Cron Explainer", url: "/cron",       group: "Dev",      keywords: ["schedule", "crontab", "quartz", "next run", "job"] },
+  { title: "JWT Decoder",  url: "/jwt",         group: "Dev",      keywords: ["token", "bearer", "claims", "auth", "oauth"] },
+  { title: "Semver Compare", url: "/semver",     group: "Dev",      keywords: ["version", "bump", "range", "caret", "tilde", "release"] },
+  { title: "Base Converter", url: "/base-converter", group: "Dev",   keywords: ["hex", "binary", "octal", "radix", "bigint"] },
   { title: "ID Generator",  url: "/id-generator", group: "Dev",     keywords: ["uuid", "ulid", "nanoid", "random", "sortable"] },
   { title: "chmod Calculator", url: "/chmod",    group: "Dev",      keywords: ["permissions", "octal", "mode", "rwx", "setuid", "sticky"] },
   { title: "Color Picker", url: "/color-picker", group: "Convert", keywords: ["hex", "rgb", "hsl", "colour"] },

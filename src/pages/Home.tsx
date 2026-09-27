@@ -90,11 +90,6 @@ const Home = () => {
                       className="group hover:bg-surface-2 flex items-center gap-2 rounded-md border border-transparent px-2.5 py-2 transition-colors"
                     >
                       <span className="font-mono text-[13px]">{tool.title}</span>
-                      {tool.shortcut && (
-                        <kbd className="bg-surface-2 text-fg-subtle rounded border px-1 font-mono text-[10px]">
-                          {tool.shortcut}
-                        </kbd>
-                      )}
                       <ArrowRight className="text-fg-subtle ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                   </li>

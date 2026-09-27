@@ -90,11 +90,6 @@ export function CommandPalette() {
               >
                 <Wrench className="text-fg-subtle size-3.5 shrink-0" />
                 <span className="font-mono text-[13px]">{tool.title}</span>
-                {tool.shortcut && (
-                  <kbd className="bg-surface-2 text-fg-subtle ml-auto rounded border px-1 font-mono text-[10px]">
-                    {tool.shortcut}
-                  </kbd>
-                )}
               </CommandItem>
             ))}
           </CommandGroup>

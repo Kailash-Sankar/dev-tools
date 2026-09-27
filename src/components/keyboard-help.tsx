@@ -13,8 +13,6 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ["T"], label: "Toggle light / dark theme" },
   { keys: ["/"], label: "Focus the main input" },
   { keys: ["G", "H"], label: "Go home" },
-  { keys: ["1"], label: "JSON Format" },
-  { keys: ["2"], label: "Base64 Encode" },
   { keys: ["?"], label: "This help" },
   { keys: ["Esc"], label: "Close / blur" },
 ];

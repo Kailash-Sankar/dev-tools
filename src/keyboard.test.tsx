@@ -56,22 +56,44 @@ describe("keyboard shortcuts", () => {
     await waitFor(() => expect(helpDialog()).toBeNull());
   });
 
-  it("closes the help dialog when a shortcut it lists is used", async () => {
+  it("closes the help dialog when a navigation shortcut it lists is used", async () => {
     const user = userEvent.setup();
     renderApp();
 
     await user.keyboard("{?}");
     await waitFor(() => expect(helpDialog()).not.toBeNull());
 
-    // `1` is documented in the dialog as "JSON Format".
-    await user.keyboard("1");
+    // `g h` is documented in the dialog as "Go home".
+    await user.keyboard("g");
+    await user.keyboard("h");
 
     // The action fires *and* the dialog goes away, so the result is visible.
     await waitFor(() => expect(helpDialog()).toBeNull());
     // The route is lazy(), so wait for its chunk rather than asserting inline.
+    await waitFor(() => expect(screen.getByPlaceholderText(/Filter this page/i)).toBeTruthy());
+  });
+
+  it("ignores bare number keys", async () => {
+    // Tools used to carry a digit shortcut (1 = JSON Format, 2 = Base64
+    // Encode). They were arbitrary and only covered 7 of 25 tools, so they
+    // were removed in favour of the command palette. Digits must now do
+    // nothing at all, including while the help dialog is open.
+    const user = userEvent.setup();
+    renderApp();
+
+    await user.keyboard("1");
+    await user.keyboard("4");
+    await user.keyboard("7");
     await waitFor(() =>
-      expect(screen.getByPlaceholderText(/Paste JSON here/i)).toBeTruthy()
+      expect(screen.getByPlaceholderText(/Paste string to encode/i)).toBeTruthy()
     );
+
+    // Same while help is open: no navigation, and the dialog stays put.
+    await user.keyboard("{?}");
+    await waitFor(() => expect(helpDialog()).not.toBeNull());
+    await user.keyboard("1");
+    await waitFor(() => expect(helpDialog()).not.toBeNull());
+    expect(screen.getByPlaceholderText(/Paste string to encode/i)).toBeTruthy();
   });
 
   it("closes the help dialog when the theme shortcut is used", async () => {
