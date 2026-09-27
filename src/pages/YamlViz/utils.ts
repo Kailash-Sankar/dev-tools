@@ -73,10 +73,10 @@ export const yamlToElkGraph = ({
     height: 30,
     labels: [{ text: path.split('.').pop() }],
   };
-  elkGraph.children.push(node);
+  (elkGraph.children ??= []).push(node);
 
   if (parentId) {
-    elkGraph.edges.push({
+    (elkGraph.edges ??= []).push({
       id: `${parentId}->${path}`,
       sources: [parentId],
       targets: [path]

@@ -99,8 +99,12 @@ const useGraph = () => {
 
             if (token !== renderToken.current) return; // superseded
 
-            // Render
-            const renderer = new Sigma(graph, containerRef.current, {
+            // Render. The container is the ref'd div below; bail if it is not
+            // mounted yet rather than handing Sigma a null element.
+            const container = containerRef.current;
+            if (!container) return;
+
+            const renderer = new Sigma(graph, container, {
                 renderLabels: true,
                 nodeReducer: (node, data) => {
                     const { selectedNodes, highlightedPath, hideBackgroundNodes, hoverPath } = useGraphStore.getState();
@@ -180,6 +184,7 @@ const useGraph = () => {
         if (!searchQuery) return;
 
         const graph = graphRef.current;
+        if (!graph) return; // graph not built yet
 
         const nodeId = graph.nodes().find((node) => {
             const label = graph.getNodeAttribute(node, 'label');
@@ -208,8 +213,9 @@ const useGraph = () => {
     }
 
     const resetCamera = useCallback(() => {
-        const camera = rendererRef.current?.getCamera();
-        camera.animate(
+        // Optional chain: the renderer may not exist yet if the user hits
+        // reset during the first layout.
+        rendererRef.current?.getCamera()?.animate(
             {
                 x: 0.5,
                 y: 0.5,
@@ -220,10 +226,11 @@ const useGraph = () => {
         setFocusedNode(null);
     }, []);
 
-    const getNodeInfo = (node) => {
-        if (node) {
-            return graphRef.current.getNodeAttributes(node);
-        }
+    const getNodeInfo = (node: string): Record<string, unknown> | null => {
+        if (!node) return null;
+        const graph = graphRef.current;
+        if (!graph) return null;
+        return graph.getNodeAttributes(node);
     }
 
     const forceRefresh = useCallback(() => {
@@ -236,7 +243,7 @@ const useGraph = () => {
 
     useEffect(() => {
         const graph = graphRef.current
-        if (graph && selectedNodes.size) {
+        if (graph && selectedNodes.size && rendererRef.current) {
             const ancestors = getAncestors(graph, selectedNodes);
             setHighlightedPath(ancestors);
             setFocusedNode(Array.from(selectedNodes)[0]);
