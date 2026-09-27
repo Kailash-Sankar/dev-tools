@@ -37,7 +37,7 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar collapsible="icon" className="border-r">
         <SidebarContent className="gap-0">
-          <div className="px-2 pt-3 pb-2 group-data-[collapsible=icon]:hidden">
+          <div className="shrink-0 px-2 pt-3 pb-2 group-data-[collapsible=icon]:hidden">
             <NavLink
               to="/"
               className="flex items-baseline gap-1.5 text-foreground"
@@ -54,7 +54,12 @@ export default function ToolBar({ children }: { children: React.ReactNode }) {
             variant="outline"
             size="sm"
             onClick={togglePalette}
-            className="text-fg-muted mx-2 mb-3 h-8 justify-start gap-2 font-normal group-data-[collapsible=icon]:hidden"
+            // shrink-0: SidebarContent is a flex column with min-h-0 and
+            // overflow-auto, so once the tool list is taller than the
+            // viewport every flex child is a shrink candidate. Without this
+            // the search box gets squashed to its content height (18px)
+            // instead of 32px. Only the tool list should scroll.
+            className="text-fg-muted mx-2 mb-3 h-8 shrink-0 justify-start gap-2 font-normal group-data-[collapsible=icon]:hidden"
           >
             <Search className="size-3.5" />
             <span className="text-xs">Search tools</span>
