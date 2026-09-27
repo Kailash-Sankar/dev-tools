@@ -1,7 +1,14 @@
 import { create } from 'zustand'
 
-/** Node info as produced by sigma/graphology for a focused node. */
-export type NodeInfo = Record<string, unknown> | null;
+/**
+ * A graph node identifier.
+ *
+ * `focusedNode`/`hoveredNode` hold the node *id*; the attributes for that id
+ * are read on demand via `getNodeInfo()`. This was previously mistyped as a
+ * node-attributes record, which the compiler caught once `tsc -b` was
+ * actually being run.
+ */
+export type NodeId = string | null;
 
 /** Maps a node label to the list of graph node ids carrying that label. */
 export type NodeMap = Record<string, string[]>;
@@ -10,10 +17,10 @@ export interface GraphState {
     // select and focus
     selectedNodes: Set<string>;
     highlightedPath: Set<string>;
-    focusedNode: NodeInfo;
+    focusedNode: NodeId;
 
     // hover
-    hoveredNode: NodeInfo;
+    hoveredNode: NodeId;
     hoverPath: Set<string>;
 
     // search, TODO: localize
@@ -31,10 +38,10 @@ const resettableStateBits = {
     // select and focus
     selectedNodes: new Set<string>(),
     highlightedPath: new Set<string>(),
-    focusedNode: null as NodeInfo,
+    focusedNode: null as NodeId,
 
     // hover
-    hoveredNode: null as NodeInfo,
+    hoveredNode: null as NodeId,
     hoverPath: new Set<string>(),
 
     // search, TODO: localize
@@ -52,7 +59,7 @@ export const useGraphStore = create<GraphState>(() => ({
 }));
 
 
-export const setHoveredNode = (node: NodeInfo) => useGraphStore.setState((state) => ({
+export const setHoveredNode = (node: NodeId) => useGraphStore.setState((state) => ({
     ...state,
     hoveredNode: node,
 }));
@@ -87,7 +94,7 @@ export const setNodeMap = (nodeMap: NodeMap) => useGraphStore.setState((state) =
     nodeMap,
 }));
 
-export const setFocusedNode = (focusedNode: NodeInfo) => useGraphStore.setState((state) => ({
+export const setFocusedNode = (focusedNode: NodeId) => useGraphStore.setState((state) => ({
     ...state,
     focusedNode,
 }));

@@ -67,10 +67,14 @@ const EXPECTED: Record<string, Marker> = {
   "/todo-list":       { kind: "text", match: /Todo List/i },
 };
 
+// `timeout` is a waitFor option, so it goes in the third argument rather than
+// being merged into the matcher options.
+const WAIT = { timeout: 10_000 };
+
 async function findMarker(marker: Marker) {
   return marker.kind === "placeholder"
-    ? screen.findByPlaceholderText(marker.match, { timeout: 10_000 })
-    : screen.findByText(marker.match, { timeout: 10_000 });
+    ? screen.findByPlaceholderText(marker.match, undefined, WAIT)
+    : screen.findByText(marker.match, undefined, WAIT);
 }
 
 afterEach(() => {

@@ -2,7 +2,7 @@ import { DirectedGraph } from 'graphology';
 // Value import (not `import type`) -- Sigma is instantiated at runtime below,
 // and the class is also used as the ref's type.
 import Sigma from 'sigma';
-import type { ELKNode } from "elkjs";
+import type { GraphNode } from "./utils";
 import { layoutGraph } from './elk';
 import { getAncestors, normalizeElkGraphCoordinates, yamlToElkGraph } from './utils';
 import { useEffect, useRef } from 'react';
@@ -48,7 +48,7 @@ const useGraph = () => {
 
         try {
             // ELK layout runs in a Web Worker (see ./elk.ts).
-            const elkOutput = await layoutGraph<{ children?: ELKNode[] }>(elkInput);
+            const elkOutput = await layoutGraph<GraphNode>(elkInput);
 
             if (token !== renderToken.current) return; // superseded
 
@@ -56,7 +56,8 @@ const useGraph = () => {
             graphRef.current = graph;
 
             // Add nodes with layout positions, in batches.
-            const children = elkOutput.children ?? [];
+            // elkjs types children as ElkNode[]; ours carry a leaf `value`.
+            const children = (elkOutput.children ?? []) as GraphNode[];
             for (let i = 0; i < children.length; i++) {
                 const node = children[i];
                 const label = node.labels?.[0]?.text ?? node.id;
@@ -101,7 +102,6 @@ const useGraph = () => {
                     const isHighlightedPath = highlightedPath.has(node) || hoverPath.has(node);
                     const isSelected = selectedNodes.has(node);
 
-                    // console.log('nodeReducer', { highlightedPath, searchedNode, node, isHoveredPath, isSearched });
 
                     return {
                         ...data,
@@ -161,7 +161,9 @@ const useGraph = () => {
             renderer.getCamera().animatedReset();
             setNodeMap(nodeMap);
 
-            renderer.setSetting('zoomMin', 0.1);
+            // 'zoomMin' is a real sigma setting, but isn't in its Settings
+            // type map (which only covers reducers/edge/label/... groups).
+            (renderer as unknown as { setSetting(k: string, v: unknown): void }).setSetting('zoomMin', 0.1);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error("YAML layout failed", err);
@@ -187,21 +189,16 @@ const useGraph = () => {
     };
 
     const focusCameraOnNode = (nodeId: string) => {
-        const graph = graphRef.current
-        const camera = rendererRef.current?.getCamera();
-        const { width, height } = rendererRef.current.getDimensions();
+        const graph = graphRef.current;
+        if (!graph?.hasNode(nodeId)) return;
 
+        const camera = rendererRef.current?.getCamera();
         const nodeAttr = graph.getNodeAttributes(nodeId);
 
-        const nodeCount = graph.order;
-        const approxRatio = Math.min(1, Math.max(0.1, 100 / nodeCount));
-
-        console.log('focusCameraOnNode', { approxRatio, width, height, nodeAttr, nodeCount });
-
-        // Zoom in on the node
+        // Zoom in on the node.
         camera?.animate(
-            { x: nodeAttr.normX, y: nodeAttr.normY, ratio: 0.75 }, // target values
-            { duration: 600 } // options
+            { x: nodeAttr.normX, y: nodeAttr.normY, ratio: 0.75 },
+            { duration: 600 }
         );
     }
 

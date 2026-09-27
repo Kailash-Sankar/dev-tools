@@ -1,5 +1,6 @@
-import ELK from "elkjs/lib/elk-api";
-import type { ELK } from "elkjs/lib/elk-api";
+import ElkConstructor from "elkjs/lib/elk-api";
+import type { ELK as ElkInstance } from "elkjs/lib/elk-api";
+import type { ElkNode } from "elkjs";
 
 /**
  * ELK layout engine, running in a Web Worker.
@@ -20,15 +21,15 @@ import type { ELK } from "elkjs/lib/elk-api";
  * The instance is memoised so repeated renders reuse one worker instead of
  * spawning a new one (and re-parsing 1.5 MB) per render.
  */
-let elkPromise: Promise<ELK> | null = null;
+let elkPromise: Promise<ElkInstance> | null = null;
 
-async function getElk(): Promise<ELK> {
+async function getElk(): Promise<ElkInstance> {
   if (!elkPromise) {
     elkPromise = (async () => {
       const { default: ElkWorker } = await import(
         "elkjs/lib/elk-worker?worker"
       );
-      return new ELK({
+      return new ElkConstructor({
         workerFactory: () => new ElkWorker() as unknown as Worker,
       });
     })().catch((err) => {
@@ -40,8 +41,13 @@ async function getElk(): Promise<ELK> {
   return elkPromise;
 }
 
-/** Run a layout, resolving with the laid-out graph. */
-export async function layoutGraph<T>(graph: T): Promise<T> {
+/**
+ * Run a layout, resolving with the laid-out graph.
+ *
+ * Children/edges come back positioned; elkjs's return type widens the input
+ * node type, so the result is cast back to `ElkNode` for our caller's shape.
+ */
+export async function layoutGraph<T extends ElkNode>(graph: T): Promise<T> {
   const elk = await getElk();
   return elk.layout(graph) as Promise<T>;
 }

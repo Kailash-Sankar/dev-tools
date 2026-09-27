@@ -1,4 +1,3 @@
-import './App.css'
 import { Route, Routes } from 'react-router'
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense, lazy } from "react";
@@ -6,7 +5,7 @@ import { Suspense, lazy } from "react";
 import Home from './pages/Home'
 import { ThemeProvider } from "@/components/theme-provider"
 import ToolBar from './layout/ToolBar'
-import { ContentWrapper } from './layout/styled'
+import { ContentWrapper } from './layout/ContentWrapper'
 import { SkeletonCard } from './components/CardLoader';
 
 const JSONDiff = lazy(() => import('./pages/JSON/Diff'))

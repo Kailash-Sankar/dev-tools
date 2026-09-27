@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 
-import { format } from "date-fns-tz";
+// Plain date-fns format: the source date is displayed in the system
+// timezone. (date-fns-tz's `format` is a legacy alias for exactly this, and
+// the per-zone rendering is handled by ZoneBlock via formatInTimeZone.)
+import { format } from "date-fns";
 import { Pencil, RefreshCw, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

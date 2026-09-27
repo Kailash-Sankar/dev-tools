@@ -55,7 +55,7 @@ const NodeSearch = () => {
                     </PopoverTrigger>
                     <PopoverContent className="p-0" side="right" align="start">
                         <Command>
-                            <CommandInput placeholder="Change status..." onValueChange={setSearchQuery} />
+                            <CommandInput placeholder="Search node labels..." onValueChange={setSearchQuery} />
                             <CommandList>
                                 <CommandEmpty>No results found.</CommandEmpty>
                                 <CommandGroup>
