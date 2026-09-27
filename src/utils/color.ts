@@ -101,12 +101,29 @@ export function normalizeHex(value: string): string {
   return "";
 }
 
-/** Relative luminance (WCAG), used to pick readable foreground text. */
-export function isLight(hex: string): boolean {
+/** WCAG relative luminance, 0 (black) to 1 (white). */
+export function relativeLuminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex);
   const [rs, gs, bs] = [r, g, b].map((c) => {
     const s = c / 255;
     return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   });
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs > 0.4;
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+/** Relative luminance (WCAG), used to pick readable foreground text. */
+export function isLight(hex: string): boolean {
+  return relativeLuminance(hex) > 0.4;
+}
+
+/**
+ * WCAG 2.1 contrast ratio between two colours, 1 (identical) to 21
+ * (#000 on #fff). 4.5 is the AA threshold for body text, 3 for large text
+ * and UI components.
+ */
+export function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
 }
