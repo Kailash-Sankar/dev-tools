@@ -44,6 +44,7 @@ export default tseslint.config(
     files: [
       'src/components/theme-provider.tsx',
       'src/components/command-palette-context.tsx',
+      'src/components/help-dialog-context.tsx',
     ],
     rules: {
       'react-refresh/only-export-components': 'off',

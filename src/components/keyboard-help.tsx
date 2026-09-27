@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -7,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useHelpDialog } from "./help-dialog-context";
 import { modLabel } from "@/utils/platform";
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
@@ -20,16 +19,13 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ["Esc"], label: "Close / blur" },
 ];
 
-/** `?` opens this. */
+/**
+ * `?` opens this. Open state lives in {@link useHelpDialog} so the global
+ * keyboard handler can dismiss it when the user activates a shortcut it lists.
+ */
 export function KeyboardHelp() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useHelpDialog();
   const mod = modLabel();
-
-  useEffect(() => {
-    const show = () => setOpen(true);
-    window.addEventListener("devtools:show-help", show);
-    return () => window.removeEventListener("devtools:show-help", show);
-  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -37,7 +33,8 @@ export function KeyboardHelp() {
         <DialogHeader>
           <DialogTitle className="text-sm">Keyboard shortcuts</DialogTitle>
           <DialogDescription className="text-xs">
-            Single-key shortcuts are ignored while typing in a field.
+            Single-key shortcuts are ignored while typing in a field. Using one
+            here closes this panel.
           </DialogDescription>
         </DialogHeader>
         <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2">

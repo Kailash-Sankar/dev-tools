@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import { useCommandPalette } from "@/components/command-palette-context";
+import { useHelpDialog } from "@/components/help-dialog-context";
 import { useTheme } from "@/components/theme-provider";
 import { toolList } from "@/layout/toolConfig";
 import { isModKey } from "@/utils/platform";
@@ -16,14 +17,19 @@ import { isModKey } from "@/utils/platform";
  *
  *   ⌘K / Ctrl-K   open the command palette
  *   t             toggle light/dark theme
- *   ?             keyboard help
+ *   ?             keyboard help (toggles)
  *   1-9           jump to a numbered tool
  *   /             focus the page's first input
  *   g then h      go home
  *   Esc           close overlays (handled by the dialogs themselves)
+ *
+ * Any shortcut that acts also dismisses the help dialog. Otherwise pressing
+ * `1` while help is open navigates to JSON Format *behind* the modal, leaving
+ * the user looking at the help panel with no visible result.
  */
 export function useKeyboardShortcuts() {
   const { toggle: togglePalette } = useCommandPalette();
+  const { toggle: toggleHelp, close: closeHelp, open: helpOpen } = useHelpDialog();
   const { setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -56,6 +62,21 @@ export function useKeyboardShortcuts() {
 
       if (isTypingTarget(e.target)) return;
 
+      // `?` toggles help and does not count as "using a shortcut", so it
+      // must not close the panel it just opened.
+      if (e.key === "?") {
+        e.preventDefault();
+        toggleHelp();
+        return;
+      }
+
+      // Every remaining shortcut is an action; run it and dismiss help so
+      // the result is actually visible.
+      const act = (fn: () => void) => {
+        if (helpOpen) closeHelp();
+        fn();
+      };
+
       // `g` prefix chord: g then h -> home. Times out so a stray g doesn't
       // leave the chord armed indefinitely.
       if (pendingG) {
@@ -63,7 +84,7 @@ export function useKeyboardShortcuts() {
         if (gTimer) clearTimeout(gTimer);
         if (e.key === "h") {
           e.preventDefault();
-          navigate("/");
+          act(() => navigate("/"));
           return;
         }
       }
@@ -77,22 +98,18 @@ export function useKeyboardShortcuts() {
 
       if (e.key === "t") {
         e.preventDefault();
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-        return;
-      }
-
-      if (e.key === "?") {
-        e.preventDefault();
-        window.dispatchEvent(new CustomEvent("devtools:show-help"));
+        act(() => setTheme(resolvedTheme === "dark" ? "light" : "dark"));
         return;
       }
 
       if (e.key === "/") {
         e.preventDefault();
-        const input = document.querySelector<HTMLElement>(
-          "textarea, input:not([type=file]), [contenteditable=true]"
-        );
-        input?.focus();
+        act(() => {
+          const input = document.querySelector<HTMLElement>(
+            "textarea, input:not([type=file]), [contenteditable=true]"
+          );
+          input?.focus();
+        });
         return;
       }
 
@@ -108,7 +125,7 @@ export function useKeyboardShortcuts() {
         const tool = toolList.find((t) => t.shortcut === e.key);
         if (tool) {
           e.preventDefault();
-          navigate(tool.url);
+          act(() => navigate(tool.url));
         }
       }
     };
@@ -118,5 +135,13 @@ export function useKeyboardShortcuts() {
       window.removeEventListener("keydown", onKeyDown);
       if (gTimer) clearTimeout(gTimer);
     };
-  }, [togglePalette, setTheme, resolvedTheme, navigate]);
+  }, [
+    togglePalette,
+    toggleHelp,
+    closeHelp,
+    helpOpen,
+    setTheme,
+    resolvedTheme,
+    navigate,
+  ]);
 }

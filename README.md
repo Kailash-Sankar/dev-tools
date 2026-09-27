@@ -66,8 +66,11 @@ There is no per-tool layout code. Build pages from the shared primitives in
 | `/` | focus the main input |
 | `G` then `H` | go home |
 | `1`, `2` | jump to numbered tools |
-| `?` | keyboard help |
+| `?` | keyboard help (toggles) |
 | `Esc` | close / blur |
+
+Any shortcut listed in the help panel also dismisses it, so the action is
+visible rather than happening behind the modal.
 
 Single-key shortcuts are ignored while typing in a field -- these tools are
 mostly one big textarea, so hijacking `t` would break normal input. `⌘K`
